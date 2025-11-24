@@ -24,7 +24,6 @@ export default function EncryptForm() {
         setResult(null);
         try {
             let payload: Payload;
-            let filename = 'secret';
 
             if (files.length > 0 && text) {
                 const fileItems = await Promise.all(files.map(async (f) => ({
@@ -34,7 +33,6 @@ export default function EncryptForm() {
                 })));
 
                 payload = { type: 'mixed', text, files: fileItems };
-                filename = 'secret-mixed-content';
             } else if (files.length > 0) {
                 const fileItems = await Promise.all(files.map(async (f) => ({
                     name: f.name,
@@ -43,13 +41,12 @@ export default function EncryptForm() {
                 })));
 
                 payload = { type: 'files', files: fileItems };
-                filename = files.length === 1 ? files[0].name : 'secret-files';
             } else {
                 payload = { type: 'text', content: text };
-                filename = 'secret-message.txt';
             }
 
-            const dataFileName = `${filename}.shd`;
+            // Force encrypted data output file name to a constant
+            const dataFileName = 'encrypted-data.shd';
 
             // 1. Create Secret Shares (Crypto)
             const secretData = await createSecretShares({
@@ -58,7 +55,7 @@ export default function EncryptForm() {
                 threshold,
             });
 
-            // 2. Generate Artifacts (PDFs)
+            // 2. Generate Artifacts (PDFs + data file)
             const jobResult = await generateShareArtifacts(secretData, {
                 shares,
                 threshold,
