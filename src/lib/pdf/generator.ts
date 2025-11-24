@@ -1,5 +1,6 @@
 import { jsPDF } from 'jspdf';
 import { COLORS, arrayBufferToBase64, drawVectorQr, drawCodeBlock } from './draw';
+import { drawFooter, drawHeader, drawStatsCard, drawSimpleCard } from './components';
 
 export async function generatePdf(
     shareBlock: Uint8Array,
@@ -25,79 +26,23 @@ export async function generatePdf(
 
     // --- Page 1: Share Card & Info ---
 
-    // 1. Header Area
-    doc.setFillColor(COLORS.bg.light);
-    doc.setDrawColor(COLORS.border);
-    doc.rect(0, 0, width, 30, 'F');
-    doc.line(0, 30, width, 30);
-
-    // App Name / Branding
-    doc.setTextColor(COLORS.text.main);
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(18);
-    doc.text(title || 'Secret Key Share', margin, 15);
-
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(9);
-    doc.setTextColor(COLORS.text.light);
-    doc.text('A piece of the encryption key for safe keeping', margin, 21);
-
-    // Share Info Card (Stats Design)
-    const cardW = 65;
-    const cardH = 18;
-    const cardX = width - margin - cardW;
-    const cardY = 6;
-
-    // Card Container
-    doc.setFillColor(COLORS.bg.white);
-    doc.setDrawColor(COLORS.border);
-    doc.roundedRect(cardX, cardY, cardW, cardH, 2, 2, 'FD');
-
-    // Vertical Divider Line
-    const splitX = cardX + 38;
-    doc.setDrawColor(COLORS.border);
-    doc.line(splitX, cardY + 3, splitX, cardY + cardH - 3);
-
-    // --- Left Side: Share Count ---
-    const leftCenter = cardX + 19;
-
-    // Label
-    doc.setTextColor(COLORS.text.light);
-    doc.setFontSize(7);
-    doc.setFont('helvetica', 'bold');
-    doc.text('SHARE INDEX', leftCenter, cardY + 6, { align: 'center' });
-
-    // Value: "1 / 5" styling
-    const shareStr = String(shareIndex);
-    const totalStr = String(totalShares);
-
-    doc.setTextColor(COLORS.accent);
-    doc.setFontSize(16);
-    doc.text(shareStr, leftCenter - 4, cardY + 14, { align: 'right' });
-
-    doc.setTextColor(COLORS.text.light);
-    doc.setFontSize(16);
-    doc.setFont('helvetica', 'normal');
-    doc.text('/', leftCenter, cardY + 14, { align: 'center' });
-
-    doc.setTextColor(COLORS.text.main);
-    doc.setFontSize(16);
-    doc.setFont('helvetica', 'bold');
-    doc.text(totalStr, leftCenter + 4, cardY + 14, { align: 'left' });
-
-    // --- Right Side: Threshold ---
-    const rightCenter = splitX + (cardW - 38) / 2;
-
-    // Label
-    doc.setTextColor(COLORS.text.light);
-    doc.setFontSize(7);
-    doc.setFont('helvetica', 'bold');
-    doc.text('REQUIRED', rightCenter, cardY + 6, { align: 'center' });
-
-    // Value
-    doc.setTextColor(COLORS.text.main);
-    doc.setFontSize(16);
-    doc.text(String(threshold), rightCenter, cardY + 14, { align: 'center' });
+    // 1. Header Area with Share Info Card
+    drawHeader(
+        doc,
+        width,
+        margin,
+        title || 'Secret Key Share',
+        'A piece of the encryption key for safe keeping',
+        {
+            type: 'stats',
+            width: 65,
+            height: 18,
+            leftLabel: 'SHARE INDEX',
+            leftValue: `${shareIndex} / ${totalShares}`,
+            rightLabel: 'REQUIRED',
+            rightValue: String(threshold)
+        }
+    );
 
     // --- Calculate Content Height & Center ---
     let contentHeight = 0;
@@ -334,25 +279,8 @@ export async function generatePdf(
 
     // Footer (Full Width)
     const footerH = 10;
-    const footerY = height - footerH;
-
-    doc.setFillColor(COLORS.bg.light);
-    doc.setDrawColor(COLORS.border);
-    doc.rect(0, footerY, width, footerH, 'F');
-    doc.line(0, footerY, width, footerY);
-
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(8);
-    doc.setTextColor(COLORS.text.light);
-
-    const textY = footerY + (footerH / 2) + 1.5;
-
-    // Left: Branding
-    doc.text('Secret Shards • Secure Shamir\'s Secret Sharing', margin, textY);
-
-    // Right: Pagination
     const totalPdfPages = 1 + dataBlocks.length;
-    doc.text(`Page 1 of ${totalPdfPages}`, width - margin, textY, { align: 'right' });
+    drawFooter(doc, width, height, margin, 1, totalPdfPages);
 
 
     // --- Page 2+: Encrypted Data Chunks ---
@@ -362,57 +290,21 @@ export async function generatePdf(
         const dataBase64 = arrayBufferToBase64(dataBlock);
         const pageNum = i + 2;
 
-        // 1. Header (Consistent with Page 1)
-        doc.setFillColor(COLORS.bg.light);
-        doc.setDrawColor(COLORS.border);
-        doc.rect(0, 0, width, 30, 'F');
-        doc.line(0, 30, width, 30);
-
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(18);
-        doc.setTextColor(COLORS.text.main);
-        doc.text('Encrypted Data Payload', margin, 15);
-
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(9);
-        doc.setTextColor(COLORS.text.light);
-        doc.text('The AES-GCM 256-bit encrypted data payload chunk', margin, 21);
-
-        // Part Info Card (Similar to Share Index Card)
-        const partCardW = 40;
-        const partCardH = 18;
-        const partCardX = width - margin - partCardW;
-        const partCardY = 6;
-
-        // Card Container
-        doc.setFillColor(COLORS.bg.white);
-        doc.setDrawColor(COLORS.border);
-        doc.roundedRect(partCardX, partCardY, partCardW, partCardH, 2, 2, 'FD');
-
-        // Label
-        doc.setTextColor(COLORS.text.light);
-        doc.setFontSize(7);
-        doc.setFont('helvetica', 'bold');
-        const partCardCenter = partCardX + partCardW / 2;
-        doc.text('PART', partCardCenter, partCardY + 6, { align: 'center' });
-
-        // Value: "1 / 3" styling
-        const partStr = String(i + 1);
-        const totalStr = String(dataBlocks.length);
-
-        doc.setTextColor(COLORS.accent);
-        doc.setFontSize(16);
-        doc.text(partStr, partCardCenter - 4, partCardY + 14, { align: 'right' });
-
-        doc.setTextColor(COLORS.text.light);
-        doc.setFontSize(16);
-        doc.setFont('helvetica', 'normal');
-        doc.text('/', partCardCenter, partCardY + 14, { align: 'center' });
-
-        doc.setTextColor(COLORS.text.main);
-        doc.setFontSize(16);
-        doc.setFont('helvetica', 'bold');
-        doc.text(totalStr, partCardCenter + 4, partCardY + 14, { align: 'left' });
+        // 1. Header with Part Info Card
+        drawHeader(
+            doc,
+            width,
+            margin,
+            'Encrypted Data Payload',
+            'The AES-GCM 256-bit encrypted data payload chunk',
+            {
+                type: 'simple',
+                width: 40,
+                height: 18,
+                label: 'PART',
+                value: `${i + 1} / ${dataBlocks.length}`
+            }
+        );
 
         // 2. Calculate Layout Heights First
         const headerH = 13;
@@ -506,21 +398,7 @@ export async function generatePdf(
         }
 
         // Footer (Full Width)
-        const footerY = height - footerH;
-
-        doc.setFillColor(COLORS.bg.light);
-        doc.setDrawColor(COLORS.border);
-        doc.rect(0, footerY, width, footerH, 'F');
-        doc.line(0, footerY, width, footerY);
-
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(8);
-        doc.setTextColor(COLORS.text.light);
-
-        const footerTextY = footerY + (footerH / 2) + 1.5;
-
-        doc.text('Secret Shards • Secure Shamir\'s Secret Sharing', margin, footerTextY);
-        doc.text(`Page ${pageNum} of ${totalPdfPages}`, width - margin, footerTextY, { align: 'right' });
+        drawFooter(doc, width, height, margin, pageNum, totalPdfPages);
     }
 
     return doc.output('blob');
