@@ -149,7 +149,7 @@ export function packData(
     ciphertext: Uint8Array
 ): Uint8Array {
     const idBytes = parseUuid(id);
-    // Header: Version(1) + ID(16) + Type(1) + Index(1) + Total(1) = 20 bytes + Magic(3)
+    // Header: Version(1) + ID(16) + Type(1) + Total(1) + Index(1) = 20 bytes + Magic(3)
     const buffer = new Uint8Array(MAGIC_LENGTH + 20 + ciphertext.length);
 
     let offset = 0;
@@ -157,8 +157,8 @@ export function packData(
     buffer[offset++] = VERSION;
     buffer.set(idBytes, offset); offset += 16;
     buffer[offset++] = BlockType.Data;
-    buffer[offset++] = chunkIndex;
     buffer[offset++] = totalChunks;
+    buffer[offset++] = chunkIndex;
 
     buffer.set(ciphertext, offset);
 
@@ -180,8 +180,8 @@ export function unpackData(buffer: Uint8Array): DataBlock {
     const type = buffer[offset++];
     if (type !== BlockType.Data) throw new Error(`Invalid block type for data: ${type}`);
 
-    const chunkIndex = buffer[offset++];
     const totalChunks = buffer[offset++];
+    const chunkIndex = buffer[offset++];
 
     const ciphertext = buffer.slice(offset) as Uint8Array<ArrayBuffer>;
 

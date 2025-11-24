@@ -180,8 +180,8 @@ export async function generatePdf(
         '0x03   | Ver = 0x01',
         '0x04   | ID (16b UUID)',
         '0x14   | Type = 0x02 (Data)',
-        '0x15   | Chunk Idx (1b)',
-        '0x16   | Total Chunks (1b)',
+        '0x15   | Total Chunks (1b)',
+        '0x16   | Chunk Index (1b)',
         '0x17   | Ciphertext (payload)',
     ];
     drawCodeBlock(doc, dataSpec, margin, y + leftTopH + colGap, col1Width, leftBottomH, 'Data QR Code (0x02)', compactOpts);
