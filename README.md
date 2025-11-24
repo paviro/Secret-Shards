@@ -1,36 +1,100 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Secret Shards
+
+Securely split your secrets using Shamir's Secret Sharing. Encrypt files or text, distribute the shares, and recover them only when enough shares are combined.
+
+🌐 **Live Version:** [https://secret-shards.paviro.de](https://secret-shards.paviro.de)
+
+## Features
+
+- **Encrypt & Split**: Encrypt text or files and split them into multiple shares
+- **Shamir's Secret Sharing**: Uses cryptographic secret sharing to split encryption keys
+- **Flexible Configuration**: Choose how many shares to generate (N) and how many are needed to recover (K)
+- **PDF Generation**: Automatically generates PDF documents with QR codes for each share
+- **QR Code Scanning**: Scan QR codes from PDFs, pictures or via your camera to decrypt your data
+- **Client-Side Encryption**: All encryption happens in your browser - your secrets never leave your device
+
+## How It Works
+
+1. **Encrypt Mode**:
+   - Enter text and/or select files
+   - Configure the number of shares (N) and threshold (K)
+   - The application encrypts your data and splits the encryption key using Shamir's Secret Sharing
+   - PDFs are generated for each share, containing QR codes with the key share and data (for small files)
+   - Download the PDFs and encrypted data file
+
+2. **Decrypt Mode**:
+   - Scan QR codes from the PDF files and upload the encrypted data file
+   - When enough shares are combined (meeting the threshold), the secret is automatically decrypted
+   - Download the recovered files or view the decrypted text
+
+## Technical Details
+
+### Encryption
+- Uses AES encryption to the data
+- Shamir's Secret Sharing for key splitting
+- All cryptographic operations happen client-side in the browser
+
+### PDF Generation
+- Each share is embedded in a PDF with QR codes
+- PDFs include metadata about the share configuration and how the binary format of the QR codes work
+
+### Security
+- **Zero Trust**: No data is sent to any server
+- **Client-Side Only**: All encryption/decryption happens in your browser
+- **No Tracking**: No analytics or tracking scripts
+
+⚠️ **Browser Extension Warning**: Be cautious when using browser extensions (password managers, form fillers, translation tools, etc.) as they may have access to read data from text fields and could potentially leak your secrets. For maximum security, consider using a private/incognito window and disabling extensions when working with sensitive data.
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
+- Node.js 18+ 
+- npm, yarn, pnpm, or bun
+
+### Installation
+
+1. Clone the repository:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/paviro/Secret-Shards
+cd Secret-Shards
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies:
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Run the development server:
+```bash
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Open [http://localhost:3000](http://localhost:3000) in your browser
 
-## Learn More
+### Build for Production
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+npm run build
+npm start
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Disclaimer
 
-## Deploy on Vercel
+**Important**: This application processes highly sensitive data. Please read and understand the following before use:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **Source Code Verification**: Always verify the source code before using this application with important secrets. Review the cryptographic implementation to ensure it meets your security requirements.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **AI-Assisted Development**: This software was created with the assistance of AI tools. While the code has been reviewed, users are responsible for verifying its security and correctness for their specific use cases.
+
+- **No Warranty**: This software is provided "as-is" without any warranties, expressed or implied. The hosted version at [secret-shards.paviro.de](https://secret-shards.paviro.de) is provided for convenience only.
+
+- **User Responsibility**: You are solely responsible for:
+  - Verifying the security and correctness of the implementation
+  - Ensuring proper handling and storage of your encrypted shares
+  - Any loss or compromise of data resulting from the use of this software
+  - Compliance with applicable laws and regulations regarding data encryption and storage
+
+- **Use at Your Own Risk**: By using this software, you acknowledge that you understand these risks and agree to use it at your own risk.
