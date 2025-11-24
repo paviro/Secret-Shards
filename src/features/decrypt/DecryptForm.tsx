@@ -366,7 +366,7 @@ export default function DecryptForm() {
 
     // Data Todo
     if (!totalChunks) {
-        todos.push({ id: 'data', text: 'Encrypted Data (Scan any data QR)', done: false, progress: 0 });
+        todos.push({ id: 'data', text: 'Encrypted Data', done: false, progress: 0 });
     } else if (chunksLoaded < totalChunks) {
         const progress = (chunksLoaded / totalChunks) * 100;
         todos.push({ id: 'data', text: `Data Chunks: ${chunksLoaded} / ${chunksTotal}`, done: false, progress });
