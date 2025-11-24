@@ -31,7 +31,7 @@ Securely split your secrets using Shamir's Secret Sharing. Encrypt files or text
 
 ### Encryption
 - Uses AES encryption to the data
-- Shamir's Secret Sharing for key splitting
+- Shamir's Secret Sharing for key splitting (using the [`shamir-secret-sharing`](https://www.npmjs.com/package/shamir-secret-sharing) library)
 - All cryptographic operations happen client-side in the browser
 
 ### PDF Generation
