@@ -1,0 +1,144 @@
+'use client';
+
+import { useState } from 'react';
+import { Payload } from '@/lib/protocol/payload';
+import { createSecretShares } from '@/lib/encryption/core';
+import { generateShareArtifacts } from '@/lib/pdf/artifacts';
+import SecretInput from './components/SecretInput';
+import FileDropzone from './components/FileDropzone';
+import ShareConfiguration from './components/ShareConfiguration';
+import PdfConfiguration from './components/PdfConfiguration';
+import ResultView from './components/ResultView';
+
+export default function EncryptForm() {
+    const [text, setText] = useState('');
+    const [files, setFiles] = useState<File[]>([]);
+    const [shares, setShares] = useState(5);
+    const [threshold, setThreshold] = useState(3);
+    const [title, setTitle] = useState('Secret Key Share');
+    const [isProcessing, setIsProcessing] = useState(false);
+    const [result, setResult] = useState<{ pdfs: { name: string; url: string }[]; dataUrl?: string; dataName?: string } | null>(null);
+
+    const handleEncrypt = async () => {
+        setIsProcessing(true);
+        setResult(null);
+        try {
+            let payload: Payload;
+            let filename = 'secret';
+
+            if (files.length > 0 && text) {
+                const fileItems = await Promise.all(files.map(async (f) => ({
+                    name: f.name,
+                    type: f.type,
+                    content: new Uint8Array(await f.arrayBuffer())
+                })));
+
+                payload = { type: 'mixed', text, files: fileItems };
+                filename = 'secret-mixed-content';
+            } else if (files.length > 0) {
+                const fileItems = await Promise.all(files.map(async (f) => ({
+                    name: f.name,
+                    type: f.type,
+                    content: new Uint8Array(await f.arrayBuffer())
+                })));
+
+                payload = { type: 'files', files: fileItems };
+                filename = files.length === 1 ? files[0].name : 'secret-files';
+            } else {
+                payload = { type: 'text', content: text };
+                filename = 'secret-message.txt';
+            }
+
+            const dataFileName = `${filename}.shd`;
+
+            // 1. Create Secret Shares (Crypto)
+            const secretData = await createSecretShares({
+                payload,
+                shares,
+                threshold,
+            });
+
+            // 2. Generate Artifacts (PDFs)
+            const jobResult = await generateShareArtifacts(secretData, {
+                shares,
+                threshold,
+                title,
+                dataFileName,
+            });
+
+            const pdfs = jobResult.pdfs.map((pdf) => {
+                const blob = new Blob([pdf.data as unknown as BlobPart], { type: 'application/pdf' });
+                const url = URL.createObjectURL(blob);
+                return { name: pdf.name, url };
+            });
+
+            let dataUrl: string | undefined;
+            let dataName: string | undefined;
+            if (jobResult.dataFile) {
+                const dataBlob = new Blob([jobResult.dataFile.data as unknown as BlobPart], { type: 'application/octet-stream' });
+                dataUrl = URL.createObjectURL(dataBlob);
+                dataName = jobResult.dataFile.name;
+            }
+
+            setResult({ pdfs, dataUrl, dataName });
+
+        } catch (e) {
+            console.error(e);
+            alert('Encryption failed');
+        } finally {
+            setIsProcessing(false);
+        }
+    };
+
+    const handleReset = () => {
+        setResult(null);
+        setFiles([]);
+        setText('');
+    };
+
+    return (
+        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            {!result ? (
+                <>
+                    <div className="bg-slate-900/50 backdrop-blur-xl rounded-2xl border border-slate-800 p-6 shadow-xl">
+                        <h2 className="text-xl font-semibold mb-6 text-indigo-300">1. Choose Secret</h2>
+
+                        <div className="space-y-4">
+                            <SecretInput text={text} onTextChange={setText} />
+
+                            <div className="relative">
+                                <div className="absolute inset-0 flex items-center">
+                                    <div className="w-full border-t border-slate-800"></div>
+                                </div>
+                                <div className="relative flex justify-center text-sm">
+                                    <span className="px-2 bg-slate-900 text-slate-500">AND / OR</span>
+                                </div>
+                            </div>
+
+                            <FileDropzone files={files} onFilesChange={setFiles} />
+                        </div>
+                    </div>
+
+                    <ShareConfiguration
+                        shares={shares}
+                        threshold={threshold}
+                        onSharesChange={setShares}
+                        onThresholdChange={setThreshold}
+                    />
+
+                    <PdfConfiguration title={title} onTitleChange={setTitle} />
+
+                    <button
+                        onClick={handleEncrypt}
+                        disabled={(!text && files.length === 0) || isProcessing || threshold > shares}
+                        className="w-full py-4 bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-indigo-400 hover:to-cyan-400 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-[0.99]"
+                    >
+                        {isProcessing ? 'Encrypting...' : 'Encrypt & Generate PDFs'}
+                    </button>
+                </>
+            ) : (
+                <ResultView result={result} onReset={handleReset} />
+            )}
+        </div>
+    );
+}
