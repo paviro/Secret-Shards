@@ -169,7 +169,7 @@ export async function generatePdf(
         '0x15   | Threshold (1b)',
         '0x16   | Total (1b)',
         '0x17   | Index (1b)',
-        '0x18   | Alg (1b) | IV (12b)',
+        '0x18   | EncAlg (1b) | IV (12b)',
         '0x25   | Key Share (var)'
     ];
     drawCodeBlock(doc, shareSpec, margin, y, col1Width, leftTopH, 'Share QR Code (0x01)', compactOpts);
