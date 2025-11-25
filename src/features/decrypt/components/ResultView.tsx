@@ -4,14 +4,15 @@ import ResultCard from '@/components/ResultCard';
 interface ResultViewProps {
     payload: Payload;
     onReset: () => void;
+    resetLabel?: string;
 }
 
-export default function ResultView({ payload, onReset }: ResultViewProps) {
+export default function ResultView({ payload, onReset, resetLabel }: ResultViewProps) {
     return (
         <ResultCard
             title="Decryption Successful!"
             onReset={onReset}
-            resetLabel="Decrypt Another Secret"
+            resetLabel={resetLabel || "Decrypt Another Secret"}
         >
             {(payload.type === 'text' || payload.type === 'mixed') && (
                 <div className="bg-slate-950 rounded-xl p-4 border border-slate-800 mb-6">

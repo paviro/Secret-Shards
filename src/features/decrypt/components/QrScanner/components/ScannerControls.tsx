@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useMemo } from 'react';
+import { ArrowPathIcon, BoltIcon, BoltSlashIcon } from '@heroicons/react/24/outline';
 
 interface ScannerControlsProps {
     hasFlash: boolean;
@@ -6,6 +7,8 @@ interface ScannerControlsProps {
     onToggleFlash: () => void;
     showSwitchCamera: boolean;
     onSwitchCamera: () => void;
+    onReset?: () => void;
+    variant?: 'default' | 'hud';
 }
 
 export default function ScannerControls({
@@ -13,43 +16,66 @@ export default function ScannerControls({
     flashOn,
     onToggleFlash,
     showSwitchCamera,
-    onSwitchCamera
+    onSwitchCamera,
+    onReset,
+    variant = 'default'
 }: ScannerControlsProps) {
-    const [isMobile, setIsMobile] = useState(false);
-
-    useEffect(() => {
-        setIsMobile(/iPhone|iPad|iPod|Android/i.test(navigator.userAgent));
+    const isMobile = useMemo(() => {
+        if (typeof navigator === 'undefined') return false;
+        return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
     }, []);
 
+    const defaultBtnClass = "flex items-center gap-2 px-4 py-3 rounded-full text-sm font-medium transition-all";
+    const hudBtnClass = "flex flex-col items-center justify-center w-16 h-16 rounded-full backdrop-blur-md border border-white/20 transition-all shadow-lg";
+
     return (
-        <div className="flex justify-center items-center mt-4 gap-4">
+        <div className={`flex justify-center items-center gap-4 ${variant === 'default' ? 'mt-4' : ''}`}>
+            {variant === 'hud' && onReset && (
+                <button
+                    onClick={onReset}
+                    className={`${hudBtnClass} bg-red-500/20 hover:bg-red-500/30 border-red-500/30 text-red-300`}
+                >
+                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            )}
+
             {hasFlash && (
                 <button
                     onClick={onToggleFlash}
-                    className={`flex items-center gap-2 px-4 py-3 rounded-full text-sm font-medium transition-all ${flashOn
-                            ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/25'
-                            : 'bg-slate-800 hover:bg-slate-700 text-slate-300'
-                        }`}
+                    className={variant === 'default' 
+                        ? `${defaultBtnClass} ${flashOn ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/25' : 'bg-slate-800 hover:bg-slate-700 text-slate-300'}`
+                        : `${hudBtnClass} ${flashOn ? 'bg-yellow-500/20 border-yellow-500/50 text-yellow-200' : 'bg-black/30 hover:bg-black/50 text-white'}`
+                    }
                 >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                    </svg>
-                    {flashOn ? 'Flash On' : 'Flash Off'}
+                    {variant === 'default' ? (
+                        <>
+                            {(flashOn ? <BoltIcon className="w-5 h-5" aria-hidden="true" /> : <BoltSlashIcon className="w-5 h-5" aria-hidden="true" />)}
+                            {flashOn ? 'Flash On' : 'Flash Off'}
+                        </>
+                    ) : (
+                        flashOn ? (
+                            <BoltIcon className="w-7 h-7" aria-hidden="true" />
+                        ) : (
+                            <BoltSlashIcon className="w-7 h-7" aria-hidden="true" />
+                        )
+                    )}
                 </button>
             )}
 
             {showSwitchCamera && (
                 <button
                     onClick={onSwitchCamera}
-                    className="flex items-center gap-2 px-4 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-full text-sm font-medium transition-all"
+                    className={variant === 'default'
+                        ? `${defaultBtnClass} bg-slate-800 hover:bg-slate-700 text-slate-300`
+                        : `${hudBtnClass} bg-black/30 hover:bg-black/50 text-white`
+                    }
                 >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                    </svg>
-                    {isMobile ? 'Flip' : 'Switch Camera'}
+                    <ArrowPathIcon className={variant === 'default' ? 'w-5 h-5' : 'w-7 h-7'} aria-hidden="true" />
+                    {variant === 'default' && (isMobile ? 'Flip' : 'Switch Camera')}
                 </button>
             )}
         </div>
     );
 }
-

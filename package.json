@@ -11,6 +11,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@heroicons/react": "^2.1.5",
     "barcode-detector": "^3.0.8",
     "framer-motion": "^12.23.24",
     "jspdf": "^3.0.4",

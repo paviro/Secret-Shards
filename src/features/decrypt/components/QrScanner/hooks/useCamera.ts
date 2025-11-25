@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 
 export type CameraError = string | null;
 
-export function useCamera() {
+export function useCamera(shouldInit = true) {
     const videoRef = useRef<HTMLVideoElement>(null);
     const [cameras, setCameras] = useState<MediaDeviceInfo[]>([]);
     const [currentCameraId, setCurrentCameraId] = useState<string | null>(null);
@@ -15,6 +15,8 @@ export function useCamera() {
 
     // Initialize cameras
     useEffect(() => {
+        if (!shouldInit) return;
+
         let isMounted = true;
 
         const getCameras = async () => {
@@ -54,7 +56,7 @@ export function useCamera() {
         return () => {
             isMounted = false;
         };
-    }, []);
+    }, [shouldInit]);
 
     const stopActiveStream = useCallback(() => {
         if (!activeStreamRef.current) return;
@@ -68,7 +70,7 @@ export function useCamera() {
 
     // Start stream when camera changes
     useEffect(() => {
-        if (!currentCameraId || !videoRef.current) return;
+        if (!shouldInit || !currentCameraId || !videoRef.current) return;
 
         let isMounted = true;
 
@@ -125,7 +127,7 @@ export function useCamera() {
             isMounted = false;
             stopActiveStream();
         };
-    }, [currentCameraId, stopActiveStream]);
+    }, [currentCameraId, stopActiveStream, shouldInit]);
 
     const switchCamera = useCallback(() => {
         if (cameras.length <= 1) return;
