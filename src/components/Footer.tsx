@@ -7,7 +7,7 @@ export default function Footer() {
     const legalPagesEnabled = isLegalPagesEnabled();
 
     if (!legalPagesEnabled) {
-        return null;
+        return <div className="pb-5" />;
     }
 
     return (
