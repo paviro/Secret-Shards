@@ -22,7 +22,16 @@ export function useCamera(shouldInit = true) {
         const getCameras = async () => {
             try {
                 // Request permission first to enumerate devices with labels
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                // Prefer environment facing camera for initial permission request to help identify the back camera
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: 'environment' } 
+                });
+                
+                // capturing the deviceId of the camera that was selected by default/preference
+                const track = stream.getVideoTracks()[0];
+                const settings = track.getSettings();
+                const preferredDeviceId = settings.deviceId;
+
                 // Stop the temporary stream immediately
                 stream.getTracks().forEach(track => track.stop());
 
@@ -31,6 +40,12 @@ export function useCamera(shouldInit = true) {
 
                 if (isMounted) {
                     setCameras(videoDevices);
+                    
+                    // Try to find the device that matched our preference
+                    const preferredDevice = preferredDeviceId 
+                        ? videoDevices.find(d => d.deviceId === preferredDeviceId)
+                        : undefined;
+
                     // Prefer back camera (environment) if available
                     const backCamera = videoDevices.find(device =>
                         device.label.toLowerCase().includes('back') ||
@@ -40,7 +55,15 @@ export function useCamera(shouldInit = true) {
                     );
 
                     if (videoDevices.length > 0) {
-                        setCurrentCameraId(backCamera ? backCamera.deviceId : videoDevices[0].deviceId);
+                        // Priority: 
+                        // 1. The device that getUserMedia({facingMode: 'environment'}) picked
+                        // 2. A device with a label indicating it's a back camera
+                        // 3. The first available device
+                        setCurrentCameraId(
+                            preferredDevice?.deviceId ?? 
+                            backCamera?.deviceId ?? 
+                            videoDevices[0].deviceId
+                        );
                     } else {
                         setError("No cameras found.");
                     }
