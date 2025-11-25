@@ -21,7 +21,7 @@ export function drawFooter(
     doc.rect(0, footerY, width, footerH, 'F');
     doc.line(0, footerY, width, footerY);
 
-    doc.setFont('helvetica', 'normal');
+    doc.setFont('Geist', 'normal');
     doc.setFontSize(8);
     doc.setTextColor(COLORS.text.light);
 

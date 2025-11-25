@@ -34,11 +34,11 @@ export function drawHeader(
     doc.line(0, 30, width, 30);
 
     doc.setTextColor(COLORS.text.main);
-    doc.setFont('helvetica', 'bold');
+    doc.setFont('Geist', 'bold');
     doc.setFontSize(18);
     doc.text(title, margin, 15);
 
-    doc.setFont('helvetica', 'normal');
+    doc.setFont('Geist', 'normal');
     doc.setFontSize(9);
     doc.setTextColor(COLORS.text.light);
     doc.text(subtitle, margin, 21);

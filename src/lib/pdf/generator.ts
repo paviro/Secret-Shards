@@ -1,6 +1,7 @@
 import { jsPDF } from 'jspdf';
 import { COLORS, arrayBufferToBase64, drawVectorQr, drawCodeBlock } from './draw';
 import { drawFooter, drawHeader, drawStatsCard, drawSimpleCard } from './components';
+import { loadGeistFonts } from './fontLoader';
 
 export async function generatePdf(
     shareBlock: Uint8Array,
@@ -15,6 +16,8 @@ export async function generatePdf(
         unit: 'mm',
         format: 'a4'
     });
+
+    loadGeistFonts(doc);
 
     const width = doc.internal.pageSize.getWidth();
     const height = doc.internal.pageSize.getHeight();
@@ -50,7 +53,7 @@ export async function generatePdf(
     // 3. What is this?
     contentHeight += 7; // Title
 
-    doc.setFont('helvetica', 'normal');
+    doc.setFont('Geist', 'normal');
     doc.setFontSize(10);
 
     const paragraphs = dataBlocks.length > 0 ? [
@@ -93,12 +96,12 @@ export async function generatePdf(
 
     // 3. What is this?
     doc.setTextColor(COLORS.text.main);
-    doc.setFont('helvetica', 'bold');
+    doc.setFont('Geist', 'bold');
     doc.setFontSize(12);
     doc.text('What is this?', margin, y);
     y += 7;
 
-    doc.setFont('helvetica', 'normal');
+    doc.setFont('Geist', 'normal');
     doc.setFontSize(10);
     doc.setTextColor(COLORS.text.main);
 
@@ -115,12 +118,12 @@ export async function generatePdf(
 
     // 4. Encryption Details
     doc.setTextColor(COLORS.text.main);
-    doc.setFont('helvetica', 'bold');
+    doc.setFont('Geist', 'bold');
     doc.setFontSize(12);
     doc.text('Encryption Details', margin, y);
     y += 7;
 
-    doc.setFont('helvetica', 'normal');
+    doc.setFont('Geist', 'normal');
     doc.setFontSize(10);
     doc.setTextColor(COLORS.text.main);
     const encDetails = [
@@ -135,13 +138,13 @@ export async function generatePdf(
 
     // 5. Binary Format Spec (Side-by-Side)
     doc.setTextColor(COLORS.text.main);
-    doc.setFont('helvetica', 'bold');
+    doc.setFont('Geist', 'bold');
     doc.setFontSize(12);
     doc.text('Binary Specification', margin, y);
     y += 7;
 
     doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
+    doc.setFont('Geist', 'normal');
     doc.setTextColor(COLORS.text.main);
     doc.text('Share/data QR blocks and the decrypted payload follow these layouts:', margin, y);
     y += 6;
@@ -246,7 +249,7 @@ export async function generatePdf(
     const infoX = qrX + qrSize + 20;
     let infoY = finalSectionY + 15;
 
-    doc.setFont('helvetica', 'bold');
+    doc.setFont('Geist', 'bold');
     doc.setFontSize(15);
     doc.setTextColor(COLORS.text.main);
     doc.text('ACCESS KEY SHARE', infoX, infoY);
@@ -261,12 +264,12 @@ export async function generatePdf(
 
     infoY += 8;
     doc.setFontSize(9);
-    doc.setFont('helvetica', 'bold');
+    doc.setFont('Geist', 'bold');
     doc.setTextColor(COLORS.text.main);
     doc.text('MANUAL ENTRY STRING', infoX, infoY);
 
     infoY += 5.5;
-    doc.setFont('courier', 'normal');
+    doc.setFont('GeistMono', 'normal');
     doc.setFontSize(8);
     doc.setTextColor(COLORS.text.main);
 
@@ -327,7 +330,7 @@ export async function generatePdf(
         const qrSectionH = qrSize + (qrPadding * 2);
 
         // Manual Entry Section (Dynamic Height)
-        doc.setFont('courier', 'normal');
+        doc.setFont('GeistMono', 'normal');
         doc.setFontSize(8);
         const textW = contentWidth - (textPaddingX * 2);
         const charW = doc.getTextWidth('A');
@@ -354,7 +357,7 @@ export async function generatePdf(
         doc.roundedRect(margin, cardY, contentWidth, totalCardH, 3, 3, 'FD');
 
         // Card Header Strip
-        doc.setFont('helvetica', 'bold');
+        doc.setFont('Geist', 'bold');
         doc.setFontSize(9);
         doc.setTextColor(COLORS.text.main);
         doc.text(`QR Code`, margin + textPaddingX, cardY + 8);
@@ -382,13 +385,13 @@ export async function generatePdf(
         let textY = textSectionY + textPaddingY;
         const textX = margin + textPaddingX;
 
-        doc.setFont('helvetica', 'bold');
+        doc.setFont('Geist', 'bold');
         doc.setFontSize(9);
         doc.setTextColor(COLORS.text.main);
         doc.text('MANUAL ENTRY STRING', textX, textY);
         textY += 4;
 
-        doc.setFont('courier', 'normal');
+        doc.setFont('GeistMono', 'normal');
         doc.setFontSize(8);
         doc.setTextColor(COLORS.text.light);
 

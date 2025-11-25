@@ -32,7 +32,7 @@ export function drawStatsCard(
     // Label
     doc.setTextColor(COLORS.text.light);
     doc.setFontSize(7);
-    doc.setFont('helvetica', 'bold');
+    doc.setFont('Geist', 'bold');
     doc.text(leftLabel, leftCenter, y + 6, { align: 'center' });
 
     // Value: "X / Y" or single value styling
@@ -44,17 +44,17 @@ export function drawStatsCard(
 
         doc.setTextColor(COLORS.text.light);
         doc.setFontSize(16);
-        doc.setFont('helvetica', 'normal');
+        doc.setFont('Geist', 'normal');
         doc.text('/', leftCenter, y + 14, { align: 'center' });
 
         doc.setTextColor(COLORS.text.main);
         doc.setFontSize(16);
-        doc.setFont('helvetica', 'bold');
+        doc.setFont('Geist', 'bold');
         doc.text(parts[1], leftCenter + 4, y + 14, { align: 'left' });
     } else {
         doc.setTextColor(COLORS.text.main);
         doc.setFontSize(16);
-        doc.setFont('helvetica', 'bold');
+        doc.setFont('Geist', 'bold');
         doc.text(leftValue, leftCenter, y + 14, { align: 'center' });
     }
 
@@ -64,7 +64,7 @@ export function drawStatsCard(
     // Label
     doc.setTextColor(COLORS.text.light);
     doc.setFontSize(7);
-    doc.setFont('helvetica', 'bold');
+    doc.setFont('Geist', 'bold');
     doc.text(rightLabel, rightCenter, y + 6, { align: 'center' });
 
     // Value
@@ -96,7 +96,7 @@ export function drawSimpleCard(
     // Label
     doc.setTextColor(COLORS.text.light);
     doc.setFontSize(7);
-    doc.setFont('helvetica', 'bold');
+    doc.setFont('Geist', 'bold');
     doc.text(label, center, y + 6, { align: 'center' });
 
     // Value: "X / Y" styling
@@ -108,17 +108,17 @@ export function drawSimpleCard(
 
         doc.setTextColor(COLORS.text.light);
         doc.setFontSize(16);
-        doc.setFont('helvetica', 'normal');
+        doc.setFont('Geist', 'normal');
         doc.text('/', center, y + 14, { align: 'center' });
 
         doc.setTextColor(COLORS.text.main);
         doc.setFontSize(16);
-        doc.setFont('helvetica', 'bold');
+        doc.setFont('Geist', 'bold');
         doc.text(parts[1], center + 4, y + 14, { align: 'left' });
     } else {
         doc.setTextColor(COLORS.text.main);
         doc.setFontSize(16);
-        doc.setFont('helvetica', 'bold');
+        doc.setFont('Geist', 'bold');
         doc.text(value, center, y + 14, { align: 'center' });
     }
 }

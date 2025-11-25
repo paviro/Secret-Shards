@@ -74,13 +74,13 @@ export function drawCodeBlock(
     doc.roundedRect(x, y, w, h, 2, 2, 'FD');
 
     // Title
-    doc.setFont('helvetica', 'bold');
+    doc.setFont('Geist', 'bold');
     doc.setFontSize(10);
     doc.setTextColor(COLORS.accent);
     doc.text(title, x + 5, y + 7);
 
     // Content
-    doc.setFont('courier', 'normal');
+    doc.setFont('GeistMono', 'normal');
     doc.setFontSize(fontSize);
     doc.setTextColor(COLORS.text.main);
 
