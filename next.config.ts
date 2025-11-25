@@ -4,6 +4,7 @@ const nextConfig: NextConfig = {
   /* config options here */
   reactCompiler: true,
   output: 'export',
+  trailingSlash: true,
   // Headers are only applied if deployed to a host that supports them (e.g. Vercel)
   // For purely static hosts (S3, Nginx), the web server must be configured manually.
   headers: async () => [
