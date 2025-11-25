@@ -72,6 +72,84 @@ export default function PrivacyPolicy() {
                     </div>
                 </div>
 
+                {/* Encryption Details */}
+                <div className="mb-12">
+                    <div className="flex items-center gap-3 mb-6">
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-500/20 to-cyan-500/20 flex items-center justify-center border border-emerald-500/30">
+                            <ShieldCheckIcon className="w-6 h-6 text-emerald-300" />
+                        </div>
+                        <h2 className="text-2xl font-semibold text-slate-200">How is the data encrypted?</h2>
+                    </div>
+
+                    <div className="bg-gradient-to-br from-slate-800/40 to-slate-900/40 rounded-2xl p-8 border border-slate-700/40 backdrop-blur-sm shadow-xl space-y-6">
+                        <div>
+                            <h3 className="text-xl font-semibold text-slate-100 mb-2">Plain-language explanation</h3>
+                            <p className="text-slate-300 leading-relaxed text-sm">
+                                To encrypt your messages and files, your browser generates a strong random secret key. That key and your data is then processed and encrypted locally on your device.
+                            </p>
+                            <p className="text-slate-300 pt-3 leading-relaxed text-sm">
+                                After the encryption, the secret key is split into several "puzzle pieces." Each person or location you choose gets one piece. Only when enough pieces are put back together can the secret key be rebuilt and the data unlocked. Without those pieces, all anyone sees is meaningless gibberish.
+                            </p>
+                        </div>
+                        <div className="bg-slate-950/40 border border-slate-700/40 rounded-xl p-6 text-xs text-slate-200 leading-relaxed space-y-3">
+                            <p className="font-semibold text-cyan-300 uppercase tracking-wide text-[0.7rem]">Technical specifics</p>
+                            <ul className="list-disc list-inside space-y-2 text-slate-300">
+                                <li>Key generation and encryption of the data is handled via the Web Crypto API (AES-GCM, 256-bit)</li>
+                                <li>Key splitting is performed using Shamir’s Secret Sharing (GF(2^8)) via the <a href="https://www.npmjs.com/package/shamir-secret-sharing" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:text-cyan-300 transition-colors underline">shamir-secret-sharing</a> library.</li>
+                                <li>The Shamir implementation in the library is independently audited, with reports available from <a href="https://cure53.de/audit-report_privy-sss-library.pdf" target="_blank" className="underline">Cure53</a> and <a href="https://github.com/Zellic/publications/blob/master/Privy_Shamir_Secret_Sharing_-_Zellic_Audit_Report.pdf" target="_blank" className="underline">Zellic</a>.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Geocaching Scanner Mode */}
+                <div className="mb-12">
+                    <div className="flex items-center gap-3 mb-6">
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center border border-purple-500/30">
+                            <svg className="w-6 h-6 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                            </svg>
+                        </div>
+                        <h2 className="text-2xl font-semibold text-slate-200">Scanner Mode</h2>
+                    </div>
+
+                    <div className="bg-gradient-to-br from-slate-800/40 to-slate-900/40 rounded-2xl p-8 border border-slate-700/40 backdrop-blur-sm shadow-xl">
+                        <p className="text-slate-300 leading-relaxed mb-6">
+                            The Scanner Mode is a special feature designed for treasure hunts and physical scavenger games. Using your device's camera, you can scan QR codes placed at different locations to collect secret shares. Once you've gathered enough shares from various physical spots, the original secret can be reconstructed and revealed.
+                        </p>
+
+                        <div className="space-y-4">
+                            <div className="bg-slate-900/30 rounded-xl p-5 border border-slate-700/20">
+                                <div className="flex items-start gap-4">
+                                    <div className="w-10 h-10 rounded-lg bg-cyan-500/20 flex items-center justify-center flex-shrink-0">
+                                        <svg className="w-5 h-5 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                        </svg>
+                                    </div>
+                                    <div className="flex-1">
+                                        <h4 className="text-base font-semibold text-slate-200 mb-2">Local storage only</h4>
+                                        <p className="text-slate-400 text-sm leading-relaxed mb-3">
+                                            The Geocache Scanner feature uses your browser's local storage to persist scanned shares and data chunks across browser sessions. This allows you to:
+                                        </p>
+
+                                        <ul className="list-disc list-inside text-slate-400 text-sm space-y-2 ml-4 mb-3">
+                                            <li>Close your browser and return later without losing progress</li>
+                                            <li>Move between physical locations while collecting secret shares</li>
+                                            <li>Keep your scanned data until you explicitly clear it</li>
+                                        </ul>
+
+                                        <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3">
+                                            <p className="text-sm text-slate-300 leading-relaxed">
+                                                <strong className="text-blue-400">Important:</strong> All data remains on your device. Nothing is transmitted to any server. Clearing your browser data or starting a new session will delete stored geocache sessions.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 {/* Legal Requirements */}
                 <div className="mb-8">
                     <div className="flex items-center gap-3 mb-6">
@@ -166,44 +244,9 @@ export default function PrivacyPolicy() {
                             </div>
                         </div>
 
-                        {/* 3. Geocaching scanner mode */}
+                        {/* 3. Data Processing by Third-Party Providers */}
                         <div className="bg-gradient-to-br from-slate-800/30 to-slate-900/30 rounded-2xl p-6 border border-slate-700/30 backdrop-blur-sm">
-                            <h3 className="text-lg font-semibold text-cyan-400 mb-4">3. Geocaching scanner mode</h3>
-
-                            <div className="space-y-4">
-                                <div className="bg-slate-900/30 rounded-xl p-5 border border-slate-700/20">
-                                    <div className="flex items-start gap-4">
-                                        <div className="w-10 h-10 rounded-lg bg-cyan-500/20 flex items-center justify-center flex-shrink-0">
-                                            <svg className="w-5 h-5 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                                            </svg>
-                                        </div>
-                                        <div className="flex-1">
-                                            <h4 className="text-base font-semibold text-slate-200 mb-2">Local storage only</h4>
-                                            <p className="text-slate-400 text-sm leading-relaxed mb-3">
-                                                The Geocache Scanner feature uses your browser's local storage to persist scanned shares and data chunks across browser sessions. This allows you to:
-                                            </p>
-
-                                            <ul className="list-disc list-inside text-slate-400 text-sm space-y-2 ml-4 mb-3">
-                                                <li>Close your browser and return later without losing progress</li>
-                                                <li>Move between physical locations while collecting secret shares</li>
-                                                <li>Keep your scanned data until you explicitly clear it</li>
-                                            </ul>
-
-                                            <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3">
-                                                <p className="text-sm text-slate-300 leading-relaxed">
-                                                    <strong className="text-blue-400">Important:</strong> All data remains on your device. Nothing is transmitted to any server. Clearing your browser data or starting a new session will delete stored geocache sessions.
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* 4. Data Processing by Third-Party Providers */}
-                        <div className="bg-gradient-to-br from-slate-800/30 to-slate-900/30 rounded-2xl p-6 border border-slate-700/30 backdrop-blur-sm">
-                            <h3 className="text-lg font-semibold text-cyan-400 mb-4">4. Data Processing by Third-Party Providers</h3>
+                            <h3 className="text-lg font-semibold text-cyan-400 mb-4">3. Data Processing by Third-Party Providers</h3>
 
                             <div className="bg-slate-900/30 rounded-xl p-5 border border-slate-700/20">
                                 <div className="flex items-start gap-4">
