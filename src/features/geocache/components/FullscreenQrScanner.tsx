@@ -78,7 +78,7 @@ export default function FullscreenQrScanner({
 
                 {/* Reticle (Centered) */}
                 <div className="absolute inset-0 pointer-events-none flex items-center justify-center z-10">
-                    <ScannerReticle className="w-[28rem] h-[24rem]" />
+                    <ScannerReticle className="w-[85vw] h-[75vw] max-w-[28rem] max-h-[24rem]" />
                 </div>
 
                 {/* Top HUD (Progress Only) */}
