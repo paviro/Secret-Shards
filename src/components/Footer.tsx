@@ -11,7 +11,7 @@ export default function Footer() {
     }
 
     return (
-        <footer className="mt-16 pb-8 text-center">
+        <footer className="mt-16 text-center">
             <div className="max-w-4xl mx-auto px-4">
                 <div className="flex flex-wrap justify-center items-center gap-4 text-sm text-slate-500">
                     <a
