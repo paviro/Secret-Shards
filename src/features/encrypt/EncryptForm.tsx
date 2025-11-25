@@ -10,6 +10,7 @@ import ShareConfiguration, { isShareConfigurationValid } from './components/Shar
 import PdfConfiguration from './components/PdfConfiguration';
 import ResultView from './components/ResultView';
 import StatusBanner, { StatusMessage } from '@/components/StatusBanner';
+import BrowserExtensionWarning from './components/BrowserExtensionWarning';
 
 export default function EncryptForm() {
     const [text, setText] = useState('');
@@ -142,6 +143,8 @@ export default function EncryptForm() {
                             <FileDropzone files={files} onFilesChange={setFiles} />
                         </div>
                     </div>
+
+                    <BrowserExtensionWarning />
 
                     <ShareConfiguration
                         shares={shares}
