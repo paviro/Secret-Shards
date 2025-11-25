@@ -1,5 +1,6 @@
 import { jsPDF } from 'jspdf';
 import { COLORS } from '../draw';
+import { getBaseUrl } from '@/lib/config';
 
 /**
  * Draws the footer on each page with branding and pagination
@@ -29,8 +30,10 @@ export function drawFooter(
     const textY = footerY + (footerH / 2) + (fontSize * 0.35 / 2.83); // Convert pt to mm and adjust for baseline
 
     // Left: Branding with clickable links
+    const baseUrl = getBaseUrl();
     const prefixText = 'Decrypt on ';
-    const websiteText = 'secret-shards.de';
+    // Extract domain from base URL (e.g., 'https://secret-shards.de' -> 'secret-shards.de')
+    const websiteText = baseUrl.replace(/^https?:\/\//, '').replace(/\/$/, '');
     const separator = ' · ';
     const githubText = 'github.com/paviro/secret-shards';
 
@@ -42,7 +45,7 @@ export function drawFooter(
     linkX += doc.getTextWidth(prefixText);
 
     // Website link
-    doc.textWithLink(websiteText, linkX, textY, { url: 'https://secret-shards.de' });
+    doc.textWithLink(websiteText, linkX, textY, { url: baseUrl });
     linkX += doc.getTextWidth(websiteText);
 
     // Separator (not clickable)

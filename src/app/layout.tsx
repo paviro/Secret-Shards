@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AnimatedBackgroundProvider } from "@/context/AnimatedBackgroundContext";
+import { generateMetadata as genMetadata } from "@/lib/metadata";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -13,10 +14,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "Secret Shards",
-  description: "Securely split your secrets using Shamir's Secret Sharing.",
-};
+export const metadata: Metadata = genMetadata();
 
 export default function RootLayout({
   children,
