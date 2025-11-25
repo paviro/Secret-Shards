@@ -2,6 +2,7 @@
 
 import { isLegalPagesEnabled } from '@/lib/config';
 import { notFound } from 'next/navigation';
+import Link from 'next/link';
 import { EnvelopeIcon, PhoneIcon, BeakerIcon, ExclamationTriangleIcon, ArrowLeftIcon } from '@heroicons/react/24/outline';
 
 export default function LegalDisclosure() {
@@ -132,13 +133,13 @@ export default function LegalDisclosure() {
 
                 {/* Back link */}
                 <div className="text-center mt-12">
-                    <a
+                    <Link
                         href="/"
                         className="inline-flex items-center gap-2 text-cyan-400 hover:text-cyan-300 transition-colors"
                     >
                         <ArrowLeftIcon className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" />
                         Back to Secret Shards
-                    </a>
+                    </Link>
                 </div>
             </div>
         </main>

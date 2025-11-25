@@ -2,6 +2,7 @@
 
 import { isLegalPagesEnabled } from '@/lib/config';
 import { notFound } from 'next/navigation';
+import Link from 'next/link';
 import { CheckIcon, ShieldCheckIcon, DocumentTextIcon, EnvelopeIcon, PhoneIcon, ArrowLeftIcon, QrCodeIcon, LockClosedIcon, ServerStackIcon, InformationCircleIcon } from '@heroicons/react/24/outline';
 
 export default function PrivacyPolicy() {
@@ -285,13 +286,13 @@ export default function PrivacyPolicy() {
 
                 {/* Back link */}
                 <div className="text-center mt-12 mb-8">
-                    <a
+                    <Link
                         href="/"
                         className="inline-flex items-center gap-2 text-cyan-400 hover:text-cyan-300 transition-colors"
                     >
                         <ArrowLeftIcon className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" />
                         Back to Secret Shards
-                    </a>
+                    </Link>
                 </div>
             </div>
         </main>
