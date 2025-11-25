@@ -77,7 +77,7 @@ export async function scanPdfForQrCodes(
             });
 
             const scales = [2, 2.5, 3];
-            let decodedText: string | null = null;
+            const pagePayloads = new Set<string>();
 
             for (const scale of scales) {
                 if (shouldContinue && !shouldContinue()) {
@@ -98,21 +98,22 @@ export async function scanPdfForQrCodes(
 
                 const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
                 const result = await qrWorker.scanImageData(imageData);
-                const match = result.matches.find(m => m.data);
+                for (const match of result.matches) {
+                    if (!match.data) continue;
+                    if (pagePayloads.has(match.data)) continue;
 
-                if (match?.data) {
-                    decodedText = match.data;
-                    break;
+                    pagePayloads.add(match.data);
+                    const pdfMatch: PdfQrMatch = {
+                        payload: match.data,
+                        page: pageNumber,
+                    };
+
+                    matches.push(pdfMatch);
+                    onMatch?.(pdfMatch);
                 }
             }
 
             page.cleanup();
-
-            if (decodedText) {
-                const match = { payload: decodedText, page: pageNumber };
-                matches.push(match);
-                onMatch?.(match);
-            }
         }
     } finally {
         canvas.width = 0;
@@ -124,7 +125,7 @@ export async function scanPdfForQrCodes(
 }
 
 
-export async function scanImageForQrCodes(file: File): Promise<string | null> {
+export async function scanImageForQrCodes(file: File): Promise<string[]> {
     if (typeof document === 'undefined') {
         throw new Error('Image scanning is only available in the browser.');
     }
@@ -144,7 +145,7 @@ export async function scanImageForQrCodes(file: File): Promise<string | null> {
     } catch (e) {
         URL.revokeObjectURL(url);
         console.error('Failed to load image for scanning', e);
-        return null;
+        return [];
     }
 
     const canvas = document.createElement('canvas');
@@ -171,9 +172,15 @@ export async function scanImageForQrCodes(file: File): Promise<string | null> {
 
     const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
     const result = await qrWorker.scanImageData(imageData);
-    const match = result.matches.find(m => m.data);
+    const uniquePayloads = new Set<string>();
+
+    for (const match of result.matches) {
+        if (!match.data) continue;
+        if (uniquePayloads.has(match.data)) continue;
+        uniquePayloads.add(match.data);
+    }
 
     URL.revokeObjectURL(url);
-    return match?.data ?? null;
+    return Array.from(uniquePayloads);
 }
 

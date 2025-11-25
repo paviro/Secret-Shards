@@ -233,7 +233,7 @@ export default function DecryptForm() {
         });
         clearErrorStatus();
 
-        let processedCount = 0;
+        let successfulScans = 0;
         const filesArray = Array.from(fileList);
 
         for (let fileIndex = 0; fileIndex < filesArray.length; fileIndex++) {
@@ -265,7 +265,7 @@ export default function DecryptForm() {
                     for (const match of matches) {
                         if (currentSessionId !== scanSessionIdRef.current) break;
                         if (processBase64(match.payload, file.name).status === 'success') {
-                            processedCount++;
+                            successfulScans++;
                         }
                     }
                 }
@@ -278,9 +278,11 @@ export default function DecryptForm() {
                         overallText: totalFiles > 1 ? `File ${fileNumber} of ${totalFiles}` : undefined,
                         key: 'scanning'
                     });
-                    const payload = await scanImageForQrCodes(file);
-                    if (payload && processBase64(payload, file.name).status === 'success') {
-                        processedCount++;
+                    const payloads = await scanImageForQrCodes(file);
+                    for (const payload of payloads) {
+                        if (processBase64(payload, file.name).status === 'success') {
+                            successfulScans++;
+                        }
                     }
                 }
                 // 3. Try processing as raw binary file
@@ -295,7 +297,7 @@ export default function DecryptForm() {
                     const buffer = await file.arrayBuffer();
                     const bytes = new Uint8Array(buffer);
                     if (processBytes(bytes, file.name).status === 'success') {
-                        processedCount++;
+                        successfulScans++;
                     }
                 }
             } catch (err) {
@@ -306,7 +308,7 @@ export default function DecryptForm() {
         if (currentSessionId !== scanSessionIdRef.current) return;
         setIsProcessing(false);
 
-        if (processedCount > 0 || shares.length > 0 || dataChunks.size > 0) {
+        if (successfulScans > 0 || shares.length > 0 || dataChunks.size > 0) {
             setStatusMessage(null);
         } else {
             setStatusMessage({ variant: 'info', text: `No valid new shares or data found in files.` });
