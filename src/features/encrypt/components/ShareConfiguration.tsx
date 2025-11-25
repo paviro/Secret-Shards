@@ -7,7 +7,45 @@ interface ShareConfigurationProps {
     onThresholdChange: (threshold: number) => void;
 }
 
+// Binary format uses 1 byte for shares and threshold, so max is 255
+const MIN_SHARES = 2;
+const MAX_SHARES = 255;
+const MIN_THRESHOLD = 2;
+
 export default function ShareConfiguration({ shares, threshold, onSharesChange, onThresholdChange }: ShareConfigurationProps) {
+    const handleSharesChange = (e: ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+
+        // Allow empty string (user is deleting to retype)
+        if (value === '') {
+            onSharesChange(NaN);
+            return;
+        }
+
+        const num = parseInt(value);
+        // Allow the user to type any number, we'll validate at submit time
+        onSharesChange(num);
+    };
+
+    const handleThresholdChange = (e: ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+
+        // Allow empty string (user is deleting to retype)
+        if (value === '') {
+            onThresholdChange(NaN);
+            return;
+        }
+
+        const num = parseInt(value);
+        // Allow the user to type any number, we'll validate at submit time
+        onThresholdChange(num);
+    };
+
+    // Validation checks
+    const sharesValid = !isNaN(shares) && shares >= MIN_SHARES && shares <= MAX_SHARES;
+    const thresholdValid = !isNaN(threshold) && threshold >= MIN_THRESHOLD && threshold <= shares;
+    const isValid = sharesValid && thresholdValid;
+
     return (
         <div className="bg-slate-900/50 backdrop-blur-xl rounded-2xl border border-slate-800 p-6 shadow-xl">
             <h2 className="text-xl font-semibold mb-6 text-cyan-300">2. Configure Shares</h2>
@@ -16,18 +54,28 @@ export default function ShareConfiguration({ shares, threshold, onSharesChange, 
                 <div>
                     <label htmlFor="total-shares" className="block text-sm font-medium text-slate-400 mb-2">
                         Total Shares (N)
-                        <span className="ml-2 text-xs text-slate-500">How many keys to generate</span>
+                        <span className="ml-2 text-xs text-slate-500">How many shares to generate</span>
                     </label>
                     <input
                         id="total-shares"
                         name="totalShares"
                         type="number"
-                        min={2}
-                        max={255}
-                        value={shares}
-                        onChange={(e: ChangeEvent<HTMLInputElement>) => onSharesChange(parseInt(e.target.value))}
-                        className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-slate-200 focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500 outline-none transition-all"
+                        min={MIN_SHARES}
+                        max={MAX_SHARES}
+                        value={isNaN(shares) ? '' : shares}
+                        onChange={handleSharesChange}
+                        className={`w-full bg-slate-950 border rounded-xl p-3 text-slate-200 focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500 outline-none transition-all ${!isNaN(shares) && !sharesValid ? 'border-red-500' : 'border-slate-800'
+                            }`}
                     />
+                    {isNaN(shares) ? (
+                        <p className="mt-1 text-xs text-amber-400">
+                            Please enter a value
+                        </p>
+                    ) : !sharesValid && (
+                        <p className="mt-1 text-xs text-red-400">
+                            {shares < MIN_SHARES ? `Must be at least ${MIN_SHARES}` : `Must be at most ${MAX_SHARES}`}
+                        </p>
+                    )}
                 </div>
                 <div>
                     <label htmlFor="threshold" className="block text-sm font-medium text-slate-400 mb-2">
@@ -38,17 +86,38 @@ export default function ShareConfiguration({ shares, threshold, onSharesChange, 
                         id="threshold"
                         name="threshold"
                         type="number"
-                        min={2}
-                        max={shares}
-                        value={threshold}
-                        onChange={(e: ChangeEvent<HTMLInputElement>) => onThresholdChange(parseInt(e.target.value))}
-                        className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-slate-200 focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500 outline-none transition-all"
+                        min={MIN_THRESHOLD}
+                        max={isNaN(shares) ? MAX_SHARES : shares}
+                        value={isNaN(threshold) ? '' : threshold}
+                        onChange={handleThresholdChange}
+                        className={`w-full bg-slate-950 border rounded-xl p-3 text-slate-200 focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500 outline-none transition-all ${!isNaN(threshold) && !thresholdValid ? 'border-red-500' : 'border-slate-800'
+                            }`}
                     />
+                    {isNaN(threshold) ? (
+                        <p className="mt-1 text-xs text-amber-400">
+                            Please enter a value
+                        </p>
+                    ) : !thresholdValid && (
+                        <p className="mt-1 text-xs text-red-400">
+                            {threshold < MIN_THRESHOLD
+                                ? `Must be at least ${MIN_THRESHOLD}`
+                                : `Must not exceed total shares (${shares})`
+                            }
+                        </p>
+                    )}
                 </div>
             </div>
-            <p className="mt-4 text-sm text-slate-500">
-                You will generate <strong>{shares}</strong> shares. Any <strong>{threshold}</strong> of them will be needed to recover the secret.
-            </p>
+            {isValid && (
+                <p className="mt-4 text-sm text-slate-500">
+                    You will generate <strong>{shares}</strong> shares. Any <strong>{threshold}</strong> of them will be needed to recover the secret.
+                </p>
+            )}
         </div>
     );
+}
+
+export function isShareConfigurationValid(shares: number, threshold: number): boolean {
+    const sharesValid = !isNaN(shares) && shares >= MIN_SHARES && shares <= MAX_SHARES;
+    const thresholdValid = !isNaN(threshold) && threshold >= MIN_THRESHOLD && threshold <= shares;
+    return sharesValid && thresholdValid;
 }

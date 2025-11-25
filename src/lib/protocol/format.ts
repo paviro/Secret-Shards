@@ -70,9 +70,9 @@ export function packShare(
     algorithm: Algorithm = Algorithm.AES_GCM_256
 ): Uint8Array {
     const idBytes = parseUuid(id);
-    
+
     if (algorithm === Algorithm.AES_GCM_256 && iv.length !== 12) {
-         throw new Error('IV must be 12 bytes for AES-GCM');
+        throw new Error('IV must be 12 bytes for AES-GCM');
     }
 
     // Magic(3) + Ver(1) + ID(16) + Type(1) + Thr(1) + Tot(1) + Idx(1) + Alg(1) + IV(12) + KeyShare(var)
@@ -124,7 +124,7 @@ export function unpackShare(buffer: Uint8Array): ShareBlock {
     } else {
         // For future algos, we might handle this differently
         // For now, assume 12 bytes or throw
-         throw new Error(`Unsupported algorithm in share: ${algorithm}`);
+        throw new Error(`Unsupported algorithm in share: ${algorithm}`);
     }
 
     const keyShare = buffer.slice(offset) as Uint8Array<ArrayBuffer>;
@@ -211,7 +211,7 @@ export function splitData(
         const start = i * maxChunkSize;
         const end = Math.min(start + maxChunkSize, ciphertext.length);
         const chunkData = ciphertext.slice(start, end);
-        
+
         // packData expects 1-based indexing for display usually, but let's stick to 0-based internally 
         // or 1-based if that's what we display. 
         // Let's use 0-based index for logic, but we can display 1-based.

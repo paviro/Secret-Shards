@@ -6,7 +6,7 @@ import { createSecretShares } from '@/lib/encryption/core';
 import { generateShareArtifacts } from '@/lib/pdf/artifacts';
 import SecretInput from './components/SecretInput';
 import FileDropzone from './components/FileDropzone';
-import ShareConfiguration from './components/ShareConfiguration';
+import ShareConfiguration, { isShareConfigurationValid } from './components/ShareConfiguration';
 import PdfConfiguration from './components/PdfConfiguration';
 import ResultView from './components/ResultView';
 import StatusBanner, { StatusMessage } from '@/components/StatusBanner';
@@ -160,7 +160,7 @@ export default function EncryptForm() {
 
                     <button
                         onClick={handleEncrypt}
-                        disabled={(!text && files.length === 0) || isProcessing || threshold > shares}
+                        disabled={(!text && files.length === 0) || isProcessing || !isShareConfigurationValid(shares, threshold)}
                         className="w-full py-4 bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-indigo-400 hover:to-cyan-400 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-[0.99]"
                     >
                         {isProcessing ? 'Encrypting...' : 'Encrypt & Generate PDFs'}
