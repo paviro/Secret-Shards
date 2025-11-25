@@ -23,6 +23,9 @@ export default function AnimatedBackground() {
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
 
+        // Check if user prefers reduced motion
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
         let animationFrameId: number;
         let width: number;
         let height: number;
@@ -48,17 +51,22 @@ export default function AnimatedBackground() {
             // Use "screen" blend mode for nice glowing overlap
             ctx.globalCompositeOperation = 'screen';
 
-            blobs.forEach((blob) => {
+            blobs.forEach((blob, index) => {
                 // Move blobs in a Lissajous-like pattern for organic movement
-                blob.t += blob.speed;
-                
+                // Only update time if motion is NOT reduced
+                if (!prefersReducedMotion) {
+                    blob.t += blob.speed;
+                }
+
                 // Calculate position based on window size and time
                 // We map the -1..1 sine wave output to a portion of the screen
                 const x = (width * 0.5) + Math.cos(blob.t) * (width * 0.3) + Math.sin(blob.t * 0.5) * (width * 0.1);
                 const y = (height * 0.5) + Math.sin(blob.t * 1.2) * (height * 0.3) + Math.cos(blob.t * 0.8) * (height * 0.1);
-                
-                // Pulse radius slightly
-                const r = blob.radius + Math.sin(blob.t * 2) * 30;
+
+                // Pulse radius slightly (or keep static for reduced motion)
+                const r = prefersReducedMotion
+                    ? blob.radius
+                    : blob.radius + Math.sin(blob.t * 2) * 30;
 
                 // Create radial gradient
                 // The gradient goes from the color at center to transparent at the radius
@@ -72,7 +80,10 @@ export default function AnimatedBackground() {
                 ctx.fill();
             });
 
-            animationFrameId = requestAnimationFrame(render);
+            // Only continue the animation loop if motion is NOT reduced
+            if (!prefersReducedMotion) {
+                animationFrameId = requestAnimationFrame(render);
+            }
         };
 
         // Initial setup
@@ -82,7 +93,9 @@ export default function AnimatedBackground() {
 
         return () => {
             window.removeEventListener('resize', handleResize);
-            cancelAnimationFrame(animationFrameId);
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+            }
         };
     }, []);
 

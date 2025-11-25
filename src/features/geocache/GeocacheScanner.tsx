@@ -5,10 +5,10 @@ import { unpackShare, unpackData, identifyBlockType, BlockType } from '@/lib/pro
 import { reconstructSecret } from '@/lib/encryption/core';
 import ResultView from '@/features/decrypt/components/ResultView';
 import FullscreenQrScanner from './components/FullscreenQrScanner';
-import AnimatedBackground from './components/AnimatedBackground';
 import GeocacheDisclaimer from './components/GeocacheDisclaimer';
 import { useGeocacheStorage } from './hooks/useGeocacheStorage';
 import { ScanResult } from '@/features/decrypt/components/QrScanner/hooks/useQrScanner';
+import { useAnimatedBackground } from '@/context/AnimatedBackgroundContext';
 
 const SESSION_STARTED_KEY = 'geocache-session-started';
 
@@ -24,6 +24,7 @@ export default function GeocacheScanner() {
         clearSession,
         isLoaded
     } = useGeocacheStorage();
+    const { enable: enableBackground, disable: disableBackground } = useAnimatedBackground();
     const [hasAcceptedDisclaimer, setHasAcceptedDisclaimer] = useState(() => {
         if (typeof window === 'undefined') {
             return false;
@@ -47,6 +48,18 @@ export default function GeocacheScanner() {
     const shouldShowDisclaimer = !hasAcceptedDisclaimer && !shouldAutoResume && !decryptedPayload;
     const isScanningActive = (hasAcceptedDisclaimer || shouldAutoResume) && !decryptedPayload;
     const shouldRenderScanner = !decryptedPayload;
+
+    useEffect(() => {
+        if (decryptedPayload || shouldShowDisclaimer) {
+            enableBackground();
+        } else {
+            disableBackground();
+        }
+
+        return () => {
+            enableBackground();
+        };
+    }, [decryptedPayload, shouldShowDisclaimer, enableBackground, disableBackground]);
 
     // Process Bytes Logic
     const processBytes = useCallback((bytes: Uint8Array): ScanResult => {
@@ -72,7 +85,7 @@ export default function GeocacheScanner() {
                 if (!dataIdRef.current) {
                     dataIdRef.current = share.id;
                 }
-                
+
                 saveState(
                     newShares,
                     dataChunks,
@@ -106,8 +119,8 @@ export default function GeocacheScanner() {
                 dataIdRef.current = newDataId;
 
                 if (totalChunks !== null && totalChunks !== data.totalChunks) {
-                     const msg = `Chunk count mismatch! Expected ${totalChunks}, got ${data.totalChunks}.`;
-                     return { status: 'error', message: msg, label: 'Error' };
+                    const msg = `Chunk count mismatch! Expected ${totalChunks}, got ${data.totalChunks}.`;
+                    return { status: 'error', message: msg, label: 'Error' };
                 }
 
                 const newDataChunks = new Map(dataChunks);
@@ -216,21 +229,20 @@ export default function GeocacheScanner() {
 
     if (decryptedPayload) {
         return (
-            <div className="relative min-h-screen bg-slate-950 flex items-center justify-center p-4">
-                 <AnimatedBackground />
-                 <div className="relative z-10 w-full max-w-md">
-                    <ResultView 
-                        payload={decryptedPayload} 
+            <div className="flex items-center justify-center p-4 min-h-screen text-slate-100">
+                <div className="w-full max-w-md">
+                    <ResultView
+                        payload={decryptedPayload}
                         onReset={handleNewSession}
                         resetLabel="New Session"
                     />
-                 </div>
+                </div>
             </div>
         );
     }
 
     return (
-        <div className="relative min-h-screen bg-slate-950">
+        <div className="relative min-h-screen text-slate-100 overflow-hidden">
             {shouldShowDisclaimer && (
                 <GeocacheDisclaimer onStart={handleStartSession} />
             )}

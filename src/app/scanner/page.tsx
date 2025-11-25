@@ -7,9 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function ScannerPage() {
-  return (
-    <main className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-indigo-500/30">
-      <GeocacheScanner />
-    </main>
-  );
+  return <GeocacheScanner />;
 }

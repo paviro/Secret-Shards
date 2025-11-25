@@ -5,7 +5,6 @@ import { useQrScanner, type ScanResult } from '@/features/decrypt/components/QrS
 import CodeOverlay from '@/features/decrypt/components/QrScanner/components/CodeOverlay';
 import { ScannerProgress, ScannerReticle } from '@/features/decrypt/components/QrScanner/components/ScannerHud';
 import ScannerControls from '@/features/decrypt/components/QrScanner/components/ScannerControls';
-import AnimatedBackground from './AnimatedBackground';
 
 interface FullscreenQrScannerProps {
     onScan: (decodedText: string) => Promise<ScanResult> | ScanResult;
@@ -47,8 +46,7 @@ export default function FullscreenQrScanner({
 
     if (!isScanning) {
         return (
-            <div className="fixed inset-0 z-50 bg-slate-950 overflow-hidden flex items-center justify-center">
-                <AnimatedBackground />
+            <div className="fixed inset-0 z-50 overflow-hidden flex items-center justify-center">
             </div>
         );
     }
@@ -83,9 +81,9 @@ export default function FullscreenQrScanner({
 
                 {/* Top HUD (Progress Only) */}
                 <div className="absolute top-0 left-0 right-0 p-4 pt-safe z-30 bg-gradient-to-b from-black/60 to-transparent pb-12 pointer-events-none">
-                     <div className="w-full flex flex-col gap-4 pointer-events-auto">
+                    <div className="w-full flex flex-col gap-4 pointer-events-auto">
                         <div className="flex justify-center items-start">
-                            <ScannerProgress 
+                            <ScannerProgress
                                 collectedShares={collectedShares}
                                 requiredShares={requiredShares}
                                 collectedData={collectedData}
@@ -93,16 +91,16 @@ export default function FullscreenQrScanner({
                                 className="flex-1"
                             />
                         </div>
-                     </div>
+                    </div>
                 </div>
 
                 {/* Bottom Controls (HUD Style) */}
                 <div className="absolute bottom-0 left-0 right-0 p-8 pb-safe z-30 bg-gradient-to-t from-black/80 to-transparent pt-24">
-                     <div className="max-w-md mx-auto">
+                    <div className="max-w-md mx-auto">
                         {error ? (
                             <p className="text-red-400 text-sm text-center mb-4 bg-black/50 p-2 rounded-lg backdrop-blur-sm">{error}</p>
                         ) : null}
-                        
+
                         <ScannerControls
                             hasFlash={hasFlash}
                             flashOn={flashOn}
@@ -112,7 +110,7 @@ export default function FullscreenQrScanner({
                             onReset={onReset}
                             variant="hud"
                         />
-                     </div>
+                    </div>
                 </div>
             </div>
         </div>
