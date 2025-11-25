@@ -30,7 +30,7 @@ export function drawFooter(
 
     // Left: Branding with clickable links
     const prefixText = 'Decrypt on ';
-    const websiteText = 'secret-shards.paviro.de';
+    const websiteText = 'secret-shards.de';
     const separator = ' · ';
     const githubText = 'github.com/paviro/secret-shards';
 
@@ -42,7 +42,7 @@ export function drawFooter(
     linkX += doc.getTextWidth(prefixText);
 
     // Website link
-    doc.textWithLink(websiteText, linkX, textY, { url: 'https://secret-shards.paviro.de' });
+    doc.textWithLink(websiteText, linkX, textY, { url: 'https://secret-shards.de' });
     linkX += doc.getTextWidth(websiteText);
 
     // Separator (not clickable)

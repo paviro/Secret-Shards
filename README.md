@@ -2,7 +2,7 @@
 
 Securely split your secrets using Shamir's Secret Sharing. Encrypt files or text, distribute the shares, and recover them only when enough shares are combined.
 
-🌐 **Live Version:** [https://secret-shards.paviro.de](https://secret-shards.paviro.de)
+🌐 **Live Version:** [https://secret-shards.de](https://secret-shards.de)
 
 ## Features
 
@@ -102,7 +102,7 @@ npm start
 
 - **AI-Assisted Development**: This software was created with the assistance of AI tools. While the code has been reviewed, users are responsible for verifying its security and correctness for their specific use cases.
 
-- **No Warranty**: This software is provided "as-is" without any warranties, expressed or implied. The hosted version at [secret-shards.paviro.de](https://secret-shards.paviro.de) is provided for convenience only.
+- **No Warranty**: This software is provided "as-is" without any warranties, expressed or implied. The hosted version at [secret-shards.de](https://secret-shards.de) is provided for convenience only.
 
 - **User Responsibility**: You are solely responsible for:
   - Verifying the security and correctness of the implementation

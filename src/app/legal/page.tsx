@@ -127,7 +127,7 @@ export default function LegalDisclosure() {
                         <div>
                             <h3 className="text-lg font-semibold text-amber-400 mb-3">No Warranty</h3>
                             <p className="text-slate-300 leading-relaxed">
-                                This software is provided "as-is" without any warranties, expressed or implied. The hosted version at secret-shards.paviro.de is provided for convenience only.
+                                This software is provided "as-is" without any warranties, expressed or implied. The hosted version at secret-shards.de is provided for convenience only.
                             </p>
                         </div>
 
