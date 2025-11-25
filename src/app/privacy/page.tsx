@@ -10,7 +10,7 @@ export default function PrivacyPolicy() {
     }
 
     return (
-        <main className="min-h-screen bg-slate-950 text-slate-100 p-4 md:p-8 font-sans">
+        <main className="min-h-screen bg-slate-950 text-slate-100 px-4 md:px-8 py-4 md:py-8 font-sans">
             <div className="max-w-4xl mx-auto">
                 {/* Header */}
                 <div className="text-center mb-12 overflow-visible">
@@ -249,31 +249,31 @@ export default function PrivacyPolicy() {
                                     <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center flex-shrink-0">
                                         <ServerStackIcon className="w-5 h-5 text-purple-400" stroke="currentColor" strokeWidth={1.5} />
                                     </div>
-                                    <div className="flex-1">
+                                    <div className="flex-1 min-w-0">
                                         <h4 className="text-base font-semibold text-slate-200 mb-3">phasedrei</h4>
 
-                                        <p className="text-slate-300 text-sm leading-relaxed mb-3">
-                                            This website uses <a href="https://phasedrei.de" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:text-cyan-300 transition-colors">phasedrei</a>, Richard-Wagner-Ring 2E, 67227 Frankenthal (Pfalz) as the hosting provider.
+                                        <p className="text-slate-300 text-sm leading-relaxed mb-3 break-words">
+                                            This website uses <a href="https://phasedrei.de" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:text-cyan-300 transition-colors break-words">phasedrei</a>, Richard-Wagner-Ring 2E, 67227 Frankenthal (Pfalz) as the hosting provider.
                                         </p>
 
-                                        <p className="text-slate-400 text-sm leading-relaxed mb-3">
+                                        <p className="text-slate-400 text-sm leading-relaxed mb-3 break-words">
                                             The collected data mentioned in Section 2 is processed and stored on servers operated by phasedrei.
                                         </p>
 
-                                        <p className="text-slate-400 text-sm leading-relaxed mb-4">
+                                        <p className="text-slate-400 text-sm leading-relaxed mb-4 break-words">
                                             A data processing agreement is in place with phasedrei, ensuring full compliance with the strict requirements of German data protection authorities.
                                         </p>
 
                                         <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4 mb-3">
                                             <p className="text-sm text-slate-300 leading-relaxed flex items-start gap-2">
                                                 <InformationCircleIcon className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" stroke="currentColor" strokeWidth={1.5} />
-                                                <span>
-                                                    The privacy policy of phasedrei can be found at: <a href="https://phasedrei.de/datenschutz/" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:text-cyan-300 transition-colors underline">https://phasedrei.de/datenschutz/</a>
+                                                <span className="break-words">
+                                                    The privacy policy of phasedrei can be found at: <a href="https://phasedrei.de/datenschutz/" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:text-cyan-300 transition-colors underline break-all">https://phasedrei.de/datenschutz/</a>
                                                 </span>
                                             </p>
                                         </div>
 
-                                        <p className="text-slate-400 text-sm italic">
+                                        <p className="text-slate-400 text-sm italic break-words">
                                             The use of phasedrei is based on a legitimate interest (Art. 6 (1)(f) GDPR) in ensuring the secure and reliable hosting of this service.
                                         </p>
                                     </div>
