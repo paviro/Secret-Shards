@@ -8,7 +8,7 @@ export default function ScannerBanner() {
     <ExpandingInfoSection
       className="mb-8"
       storageKey="hideScannerBanner"
-      title="Scanner Mode"
+      title="Geocaching Scanner Mode"
       icon={<MapPinIcon className="w-6 h-6" />}
       badge={
         <span className="text-xs bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/30">

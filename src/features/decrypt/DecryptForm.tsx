@@ -11,6 +11,7 @@ import MissingDataList from './components/MissingDataList';
 import LoadedItemsList from './components/LoadedItemsList';
 import ResultView from './components/ResultView';
 import { ScanResult } from './components/QrScanner';
+import ScannerBanner from '@/components/ScannerBanner';
 
 export default function DecryptForm() {
     const [shares, setShares] = useState<ShareBlock[]>([]);
@@ -409,6 +410,8 @@ export default function DecryptForm() {
 
     return (
         <div className="flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <ScannerBanner />
+
             <InputZone
                 onScan={handleScan}
                 onFiles={handleFiles}
