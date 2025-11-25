@@ -7,6 +7,7 @@ import DecryptForm from '@/features/decrypt/DecryptForm';
 import Header from '@/components/Header';
 import FeatureSwitcher from '@/components/FeatureSwitcher';
 import ScannerBanner from '@/components/ScannerBanner';
+import Footer from '@/components/Footer';
 
 export default function Home() {
   const [mode, setMode] = useState<'encrypt' | 'decrypt'>('encrypt');
@@ -15,7 +16,7 @@ export default function Home() {
     <main className="min-h-screen bg-slate-950 text-slate-100 p-4 md:p-8 font-sans selection:bg-indigo-500/30">
       <div className="max-w-4xl mx-auto">
         <Header />
-        
+
         <ScannerBanner />
 
         <FeatureSwitcher mode={mode} setMode={setMode} />
@@ -45,6 +46,8 @@ export default function Home() {
             )}
           </AnimatePresence>
         </div>
+
+        <Footer />
       </div>
     </main>
   );

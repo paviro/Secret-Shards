@@ -6,7 +6,9 @@
   "scripts": {
     "copy-wasm": "mkdir -p public/wasm && cp node_modules/zxing-wasm/dist/reader/zxing_reader.wasm public/wasm/",
     "dev": "npm run copy-wasm && next dev",
+    "dev:legal": "NEXT_PUBLIC_ENABLE_LEGAL_PAGES=true npm run dev",
     "build": "npm run copy-wasm && next build",
+    "build:legal": "NEXT_PUBLIC_ENABLE_LEGAL_PAGES=true npm run build",
     "start": "npm run copy-wasm && next start",
     "lint": "eslint"
   },
