@@ -1,5 +1,4 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import DismissTimer from '@/components/DismissTimer';
 
 export type StatusMessage = {
     variant: 'info' | 'success' | 'error';
@@ -15,9 +14,10 @@ export type StatusMessage = {
 interface StatusBannerProps {
     statusMessage: StatusMessage | null;
     isProcessing: boolean;
+    onClose: () => void;
 }
 
-export default function StatusBanner({ statusMessage, isProcessing }: StatusBannerProps) {
+export default function StatusBanner({ statusMessage, isProcessing, onClose }: StatusBannerProps) {
     return (
         <AnimatePresence>
             {statusMessage && (
@@ -32,6 +32,21 @@ export default function StatusBanner({ statusMessage, isProcessing }: StatusBann
                             'bg-blue-500/10 text-blue-400 border border-blue-500/30'
                         }`}
                 >
+                    {/* Countdown timer shows when autoHide is not explicitly disabled (defaults to true) */}
+                    {(statusMessage.autoHide ?? true) && (
+                        <motion.div
+                            key={statusMessage.text + statusMessage.variant}
+                            initial={{ width: "100%" }}
+                            animate={{ width: "0%" }}
+                            transition={{
+                                duration: (statusMessage.durationMs ?? 5000) / 1000,
+                                ease: "linear",
+                                delay: 0.2 // Wait for parent enter animation
+                            }}
+                            className="absolute bottom-0 left-0 h-1 bg-current opacity-50"
+                        />
+                    )}
+                    
                     <AnimatePresence mode="popLayout" initial={false}>
                         <motion.div
                             key={statusMessage.key ?? statusMessage.text}
@@ -41,15 +56,7 @@ export default function StatusBanner({ statusMessage, isProcessing }: StatusBann
                             transition={{ duration: 0.3, ease: "easeInOut" }}
                             className="p-4"
                         >
-                            {/* Auto-dismiss timer */}
-                            {(statusMessage.autoHide ?? (statusMessage.variant !== 'info')) && (
-                                <DismissTimer
-                                    key={statusMessage.text + statusMessage.variant}
-                                    duration={statusMessage.durationMs ?? 3000}
-                                />
-                            )}
-
-                            <div className="flex items-center justify-center gap-2 h-full min-h-[24px]">
+                            <div className="flex items-center gap-2 h-full min-h-[24px]">
                                 {statusMessage.variant === 'info' && isProcessing && (
                                     <svg className="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -60,12 +67,17 @@ export default function StatusBanner({ statusMessage, isProcessing }: StatusBann
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                     </svg>
                                 )}
-                                {statusMessage.variant === 'error' && (
+                                <span className="text-center flex-1">{statusMessage.text}</span>
+                                <button
+                                    type="button"
+                                    onClick={onClose}
+                                    aria-label="Dismiss message"
+                                    className="inline-flex items-center justify-center rounded-full p-1 hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
+                                >
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                                     </svg>
-                                )}
-                                <span className="text-center flex-1">{statusMessage.text}</span>
+                                </button>
                             </div>
 
                             {/* Overall progress bar (only shown when processing multiple files) */}

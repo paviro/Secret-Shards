@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Payload } from '@/lib/protocol/payload';
 import { createSecretShares } from '@/lib/encryption/core';
 import { generateShareArtifacts } from '@/lib/pdf/artifacts';
@@ -9,6 +9,7 @@ import FileDropzone from './components/FileDropzone';
 import ShareConfiguration from './components/ShareConfiguration';
 import PdfConfiguration from './components/PdfConfiguration';
 import ResultView from './components/ResultView';
+import StatusBanner, { StatusMessage } from '@/components/StatusBanner';
 
 export default function EncryptForm() {
     const [text, setText] = useState('');
@@ -17,7 +18,19 @@ export default function EncryptForm() {
     const [threshold, setThreshold] = useState(3);
     const [title, setTitle] = useState('Secret Key Share');
     const [isProcessing, setIsProcessing] = useState(false);
+    const [statusMessage, setStatusMessage] = useState<StatusMessage | null>(null);
     const [result, setResult] = useState<{ pdfs: { name: string; url: string }[]; dataUrl?: string; dataName?: string } | null>(null);
+
+    // Auto-hide status message after a short delay unless explicitly disabled
+    useEffect(() => {
+        if (!statusMessage) return;
+        const shouldAutoHide = statusMessage.autoHide ?? true;
+        if (!shouldAutoHide) return;
+        const timer = window.setTimeout(() => {
+            setStatusMessage((current) => (current === statusMessage ? null : current));
+        }, 5000);
+        return () => window.clearTimeout(timer);
+    }, [statusMessage]);
 
     const handleEncrypt = async () => {
         setIsProcessing(true);
@@ -81,7 +94,21 @@ export default function EncryptForm() {
 
         } catch (e) {
             console.error(e);
-            alert('Encryption failed');
+            const message = e instanceof Error ? e.message : String(e);
+            let errorText = 'Encryption failed! ';
+
+            // Provide more context based on the error
+            if (message.includes('memory') || message.includes('Memory')) {
+                errorText += 'The file might be too large. Try splitting it into smaller files.';
+            } else if (message.includes('crypto') || message.includes('Crypto')) {
+                errorText += 'A cryptographic operation failed. Please try again.';
+            } else if (message) {
+                errorText += message;
+            } else {
+                errorText += 'An unexpected error occurred. Please try again.';
+            }
+
+            setStatusMessage({ variant: 'error', text: errorText, autoHide: false });
         } finally {
             setIsProcessing(false);
         }
@@ -124,6 +151,12 @@ export default function EncryptForm() {
                     />
 
                     <PdfConfiguration title={title} onTitleChange={setTitle} />
+
+                    <StatusBanner
+                        statusMessage={statusMessage}
+                        isProcessing={isProcessing}
+                        onClose={() => setStatusMessage(null)}
+                    />
 
                     <button
                         onClick={handleEncrypt}

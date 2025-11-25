@@ -6,7 +6,7 @@ import { Payload } from '@/lib/protocol/payload';
 import { reconstructSecret } from '@/lib/encryption/core';
 import { scanPdfForQrCodes, scanImageForQrCodes } from '@/lib/pdf/scan';
 import InputZone from './components/InputZone';
-import StatusBanner, { StatusMessage } from './components/StatusBanner';
+import StatusBanner, { StatusMessage } from '@/components/StatusBanner';
 import MissingDataList from './components/MissingDataList';
 import LoadedItemsList from './components/LoadedItemsList';
 import ResultView from './components/ResultView';
@@ -55,26 +55,16 @@ export default function DecryptForm() {
     // Auto-hide status message after a short delay unless explicitly disabled (progress info)
     useEffect(() => {
         if (!statusMessage) return;
-        const shouldAutoHide = statusMessage.autoHide ?? (statusMessage.variant !== 'info');
+        const shouldAutoHide = statusMessage.autoHide ?? true;
         if (!shouldAutoHide) return;
         const timer = window.setTimeout(() => {
             setStatusMessage((current) => (current === statusMessage ? null : current));
-        }, statusMessage.durationMs ?? 3000);
+        }, statusMessage.durationMs ?? 5000);
         return () => window.clearTimeout(timer);
     }, [statusMessage]);
 
     const clearErrorStatus = () => {
         setStatusMessage(prev => (prev?.variant === 'error' ? null : prev));
-    };
-
-    const showErrorStatus = (text: string, overrides?: Partial<Omit<StatusMessage, 'variant' | 'text'>>) => {
-        setStatusMessage({
-            variant: 'error',
-            text,
-            autoHide: true,
-            durationMs: overrides?.durationMs ?? 5000,
-            ...overrides,
-        });
     };
 
     // Helper to process raw bytes (from File or decoded Base64)
@@ -89,14 +79,14 @@ export default function DecryptForm() {
                 // Check ID match with existing data (using ref)
                 if (dataIdRef.current && dataIdRef.current !== share.id) {
                     const msg = `Share ID mismatch in ${sourceName}! This share doesn't match the loaded data.`;
-                    showErrorStatus(msg);
+                    setStatusMessage({ variant: 'error', text: msg });
                     return { status: 'error', message: msg };
                 }
 
                 // Check ID match with existing shares (using ref)
                 if (shareIdRef.current && shareIdRef.current !== share.id) {
                     const msg = `Share ID mismatch in ${sourceName}! This share belongs to a different secret.`;
-                    showErrorStatus(msg);
+                    setStatusMessage({ variant: 'error', text: msg });
                     return { status: 'error', message: msg };
                 }
 
@@ -141,12 +131,12 @@ export default function DecryptForm() {
                 // Check ID match
                 if (shareIdRef.current && shareIdRef.current !== data.id) {
                     const msg = `Data ID mismatch in ${sourceName}! This data doesn't match the loaded shares.`;
-                    showErrorStatus(msg);
+                    setStatusMessage({ variant: 'error', text: msg });
                     return { status: 'error', message: msg, label: 'Mismatching Data' };
                 }
                 if (dataIdRef.current && dataIdRef.current !== data.id) {
                     const msg = `Data ID mismatch in ${sourceName}! This data belongs to a different secret.`;
-                    showErrorStatus(msg);
+                    setStatusMessage({ variant: 'error', text: msg });
                     return { status: 'error', message: msg, label: 'Mismatching Data' };
                 }
 
@@ -167,8 +157,8 @@ export default function DecryptForm() {
                     setTotalChunks(data.totalChunks);
                 } else if (totalChunksRef.current !== data.totalChunks) {
                     // This is weird, but possible if corrupted or mixed versions
-                    const msg = `Data chunk mismatch! Expected ${totalChunksRef.current} chunks but got one saying ${data.totalChunks}.`;
-                    showErrorStatus(msg);
+                    const msg = `Chunk says it's part of a ${data.totalChunks}-piece set, but your previously loaded data says ${totalChunksRef.current} pieces.`;
+                    setStatusMessage({ variant: 'error', text: msg, autoHide: false });
                     return { status: 'error', message: msg, label: 'Corrupted Data' };
                 }
 
@@ -214,9 +204,9 @@ export default function DecryptForm() {
         if (result.status === 'success') {
             // Success
         } else if (result.status === 'duplicate') {
-            showErrorStatus(result.message || "Already added.");
+            setStatusMessage({ variant: 'error', text: result.message || "Already added." });
         } else {
-            showErrorStatus(result.message || "Could not recognize pasted content.");
+            setStatusMessage({ variant: 'error', text: "Could not recognize pasted content" });
         }
     };
 
@@ -229,7 +219,8 @@ export default function DecryptForm() {
         setStatusMessage({
             variant: 'info',
             text: `Processing ${totalFiles} file${totalFiles === 1 ? '' : 's'}...`,
-            key: 'scanning'
+            key: 'scanning',
+            autoHide: false,
         });
         clearErrorStatus();
 
@@ -255,7 +246,8 @@ export default function DecryptForm() {
                                 progress: fileProgress,
                                 overallProgress: totalFiles > 1 ? overallProgress : undefined,
                                 overallText: totalFiles > 1 ? `File ${fileNumber} of ${totalFiles}` : undefined,
-                                key: 'scanning'
+                                key: 'scanning',
+                                autoHide: false,
                             });
                         },
                         undefined,
@@ -276,7 +268,8 @@ export default function DecryptForm() {
                         text: `Scanning image ${file.name}...`,
                         overallProgress: totalFiles > 1 ? overallProgress : undefined,
                         overallText: totalFiles > 1 ? `File ${fileNumber} of ${totalFiles}` : undefined,
-                        key: 'scanning'
+                        key: 'scanning',
+                        autoHide: false,
                     });
                     const payloads = await scanImageForQrCodes(file);
                     for (const payload of payloads) {
@@ -292,7 +285,8 @@ export default function DecryptForm() {
                         text: `Processing ${file.name}...`,
                         overallProgress: totalFiles > 1 ? overallProgress : undefined,
                         overallText: totalFiles > 1 ? `File ${fileNumber} of ${totalFiles}` : undefined,
-                        key: 'scanning'
+                        key: 'scanning',
+                        autoHide: false,
                     });
                     const buffer = await file.arrayBuffer();
                     const bytes = new Uint8Array(buffer);
@@ -333,7 +327,7 @@ export default function DecryptForm() {
 
     const handleFatalPayloadError = (message: string) => {
         resetSessionState();
-        showErrorStatus(message);
+        setStatusMessage({ variant: 'error', text: message, autoHide: false });
     };
 
     const handleDecrypt = async () => {
@@ -364,7 +358,7 @@ export default function DecryptForm() {
                 handleFatalPayloadError('Unsupported payload version detected. Try refreshing the page in case a new version is available.');
                 return;
             }
-            showErrorStatus("Decryption failed! Are the shares correct?");
+            setStatusMessage({ variant: 'error', text: "Decryption failed! Are the shares correct?", autoHide: false });
         }
     };
 
@@ -426,7 +420,11 @@ export default function DecryptForm() {
                 totalData={totalChunks}
             />
 
-            <StatusBanner statusMessage={statusMessage} isProcessing={isProcessing} />
+            <StatusBanner
+                statusMessage={statusMessage}
+                isProcessing={isProcessing}
+                onClose={() => setStatusMessage(null)}
+            />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <MissingDataList todos={todos} />
