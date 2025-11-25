@@ -1,7 +1,7 @@
 {
   "name": "secrets-sharing",
   "author": "Paul-Vincent Roll",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "scripts": {
     "copy-wasm": "mkdir -p public/wasm && cp node_modules/zxing-wasm/dist/reader/zxing_reader.wasm public/wasm/",
