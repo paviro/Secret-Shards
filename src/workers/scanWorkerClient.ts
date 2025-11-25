@@ -1,12 +1,12 @@
 // QR Scan Worker Client
 // Provides a clean API for QR code scanning using a web worker
 
-import type { WorkerResponse } from '@/workers/qrScanWorker';
+import type { ScanMatch, WorkerResponse } from '@/workers/qrScanWorker';
 
 class QrScanWorkerClient {
     private worker: Worker | null = null;
     private pendingScans = new Map<string, {
-        resolve: (data: string | null) => void;
+        resolve: (result: { matches: ScanMatch[] }) => void;
         reject: (error: Error) => void;
     }>();
     private nextTransferId = 0;
@@ -30,7 +30,7 @@ class QrScanWorkerClient {
                 this.pendingScans.delete(message.transferId);
 
                 if (message.type === 'result') {
-                    pending.resolve(message.data);
+                    pending.resolve({ matches: message.matches });
                 } else if (message.type === 'error') {
                     pending.reject(new Error(message.error));
                 }
@@ -57,11 +57,11 @@ class QrScanWorkerClient {
         return this.worker;
     }
 
-    async scanImageData(imageData: ImageData): Promise<string | null> {
+    async scanImageData(imageData: ImageData): Promise<{ matches: ScanMatch[] }> {
         const worker = this.ensureWorker();
         const transferId = `${Date.now()}-${this.nextTransferId++}`;
 
-        return new Promise<string | null>((resolve, reject) => {
+        return new Promise<{ matches: ScanMatch[] }>((resolve, reject) => {
             this.pendingScans.set(transferId, { resolve, reject });
 
             // Transfer the buffer to avoid copying

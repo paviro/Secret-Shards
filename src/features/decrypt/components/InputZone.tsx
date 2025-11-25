@@ -1,15 +1,28 @@
 import { useState } from 'react';
-import QrScanner from './QrScanner';
+import QrScanner, { ScanResult } from './QrScanner';
 import { useFileDrop } from '@/hooks/useFileDrop';
 
 interface InputZoneProps {
-    onScan: (text: string) => void;
+    onScan: (text: string) => Promise<ScanResult> | ScanResult;
     onFiles: (files: FileList) => void;
     onPaste: (text: string) => void;
     isProcessing: boolean;
+    collectedShares: number;
+    requiredShares: number;
+    collectedData: number;
+    totalData: number | null;
 }
 
-export default function InputZone({ onScan, onFiles, onPaste, isProcessing }: InputZoneProps) {
+export default function InputZone({
+    onScan,
+    onFiles,
+    onPaste,
+    isProcessing,
+    collectedShares,
+    requiredShares,
+    collectedData,
+    totalData
+}: InputZoneProps) {
     const [scanning, setScanning] = useState(false);
 
     const { isDragOver, handleDragEnter, handleDragLeave, handleDragOver, handleDrop } = useFileDrop({
@@ -28,11 +41,12 @@ export default function InputZone({ onScan, onFiles, onPaste, isProcessing }: In
             {scanning && (
                 <div className="mb-8">
                     <QrScanner
-                        onScan={(text) => {
-                            onScan(text);
-                            setScanning(false);
-                        }}
+                        onScan={onScan}
                         onClose={() => setScanning(false)}
+                        collectedShares={collectedShares}
+                        requiredShares={requiredShares}
+                        collectedData={collectedData}
+                        totalData={totalData}
                     />
                 </div>
             )}

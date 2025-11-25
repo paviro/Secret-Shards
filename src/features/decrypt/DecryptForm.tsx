@@ -10,6 +10,7 @@ import StatusBanner, { StatusMessage } from './components/StatusBanner';
 import MissingDataList from './components/MissingDataList';
 import LoadedItemsList from './components/LoadedItemsList';
 import ResultView from './components/ResultView';
+import { ScanResult } from './components/QrScanner';
 
 export default function DecryptForm() {
     const [shares, setShares] = useState<ShareBlock[]>([]);
@@ -77,7 +78,7 @@ export default function DecryptForm() {
     };
 
     // Helper to process raw bytes (from File or decoded Base64)
-    const processBytes = useCallback((bytes: Uint8Array, sourceName: string): boolean => {
+    const processBytes = useCallback((bytes: Uint8Array, sourceName: string): ScanResult => {
         try {
             const type = identifyBlockType(bytes);
 
@@ -87,14 +88,21 @@ export default function DecryptForm() {
 
                 // Check ID match with existing data (using ref)
                 if (dataIdRef.current && dataIdRef.current !== share.id) {
-                    showErrorStatus(`Share ID mismatch in ${sourceName}! This share doesn't match the loaded data.`);
-                    return false;
+                    const msg = `Share ID mismatch in ${sourceName}! This share doesn't match the loaded data.`;
+                    showErrorStatus(msg);
+                    return { status: 'error', message: msg };
                 }
 
                 // Check ID match with existing shares (using ref)
                 if (shareIdRef.current && shareIdRef.current !== share.id) {
-                    showErrorStatus(`Share ID mismatch in ${sourceName}! This share belongs to a different secret.`);
-                    return false;
+                    const msg = `Share ID mismatch in ${sourceName}! This share belongs to a different secret.`;
+                    showErrorStatus(msg);
+                    return { status: 'error', message: msg };
+                }
+
+                // Check for duplicate synchronously using state
+                if (shares.some(s => s.shareIndex === share.shareIndex && s.id === share.id)) {
+                    return { status: 'duplicate', message: 'Share already added.' };
                 }
 
                 setShares(prev => {
@@ -120,20 +128,32 @@ export default function DecryptForm() {
 
                 if (added) {
                     clearErrorStatus();
+                    return { status: 'success', label: `Share #${share.shareIndex + 1}` };
                 }
-                return added;
+                // If we reached here, it wasn't added but wasn't caught by synchronous duplicate check?
+                // This implies a race condition or logic mismatch.
+                // But since we checked shares.some above, it should be fine.
+                return { status: 'duplicate', message: 'Share already added.', label: `Share #${share.shareIndex + 1}` };
 
             } else if (type === BlockType.Data) {
                 const data = unpackData(bytes);
 
                 // Check ID match
                 if (shareIdRef.current && shareIdRef.current !== data.id) {
-                    showErrorStatus(`Data ID mismatch in ${sourceName}! This data doesn't match the loaded shares.`);
-                    return false;
+                    const msg = `Data ID mismatch in ${sourceName}! This data doesn't match the loaded shares.`;
+                    showErrorStatus(msg);
+                    return { status: 'error', message: msg, label: 'Mismatching Data' };
                 }
                 if (dataIdRef.current && dataIdRef.current !== data.id) {
-                    showErrorStatus(`Data ID mismatch in ${sourceName}! This data belongs to a different secret.`);
-                    return false;
+                    const msg = `Data ID mismatch in ${sourceName}! This data belongs to a different secret.`;
+                    showErrorStatus(msg);
+                    return { status: 'error', message: msg, label: 'Mismatching Data' };
+                }
+
+                // Check duplicate
+                if (dataChunks.has(data.chunkIndex)) {
+                    // Check if content matches? For now just assume duplicate index is duplicate.
+                    return { status: 'duplicate', message: 'Data chunk already added.', label: `Data Chunk ${data.chunkIndex + 1}/${data.totalChunks}` };
                 }
 
                 // Update Data State
@@ -147,8 +167,9 @@ export default function DecryptForm() {
                     setTotalChunks(data.totalChunks);
                 } else if (totalChunksRef.current !== data.totalChunks) {
                     // This is weird, but possible if corrupted or mixed versions
-                    showErrorStatus(`Data chunk mismatch! Expected ${totalChunksRef.current} chunks but got one saying ${data.totalChunks}.`);
-                    return false;
+                    const msg = `Data chunk mismatch! Expected ${totalChunksRef.current} chunks but got one saying ${data.totalChunks}.`;
+                    showErrorStatus(msg);
+                    return { status: 'error', message: msg, label: 'Corrupted Data' };
                 }
 
                 setDataChunks(prev => {
@@ -158,16 +179,17 @@ export default function DecryptForm() {
                 });
 
                 clearErrorStatus();
-                return true;
+                return { status: 'success', label: `Data Chunk ${data.chunkIndex + 1}/${data.totalChunks}` };
             }
         } catch (e) {
             console.error(e);
+            return { status: 'error', message: 'Invalid format.', label: 'Invalid Code' };
         }
-        return false;
-    }, [encryptionInfo]);
+        return { status: 'error', message: 'Unknown block type.', label: 'Invalid Code' };
+    }, [encryptionInfo, shares, dataChunks]);
 
     // Helper to process base64 string
-    const processBase64 = useCallback((base64: string, sourceName: string): boolean => {
+    const processBase64 = useCallback((base64: string, sourceName: string): ScanResult => {
         try {
             const cleanBase64 = base64.trim();
             const binaryString = window.atob(cleanBase64);
@@ -178,24 +200,23 @@ export default function DecryptForm() {
             return processBytes(bytes, sourceName);
         } catch (e) {
             console.error("Base64 decode error", e);
-            return false;
+            return { status: 'error', message: 'Invalid Base64.', label: 'Invalid Code' };
         }
     }, [processBytes]);
 
 
-    const handleScan = (text: string) => {
-        if (processBase64(text, "QR Code")) {
-            // Success
-        } else {
-            showErrorStatus("Invalid QR code format.");
-        }
+    const handleScan = (text: string): ScanResult => {
+        return processBase64(text, "QR Code");
     };
 
     const handlePaste = (text: string) => {
-        if (processBase64(text, "Paste")) {
+        const result = processBase64(text, "Paste");
+        if (result.status === 'success') {
             // Success
+        } else if (result.status === 'duplicate') {
+            showErrorStatus(result.message || "Already added.");
         } else {
-            showErrorStatus("Could not recognize pasted content.");
+            showErrorStatus(result.message || "Could not recognize pasted content.");
         }
     };
 
@@ -243,7 +264,7 @@ export default function DecryptForm() {
 
                     for (const match of matches) {
                         if (currentSessionId !== scanSessionIdRef.current) break;
-                        if (processBase64(match.payload, file.name)) {
+                        if (processBase64(match.payload, file.name).status === 'success') {
                             processedCount++;
                         }
                     }
@@ -258,7 +279,7 @@ export default function DecryptForm() {
                         key: 'scanning'
                     });
                     const payload = await scanImageForQrCodes(file);
-                    if (payload && processBase64(payload, file.name)) {
+                    if (payload && processBase64(payload, file.name).status === 'success') {
                         processedCount++;
                     }
                 }
@@ -273,7 +294,7 @@ export default function DecryptForm() {
                     });
                     const buffer = await file.arrayBuffer();
                     const bytes = new Uint8Array(buffer);
-                    if (processBytes(bytes, file.name)) {
+                    if (processBytes(bytes, file.name).status === 'success') {
                         processedCount++;
                     }
                 }
@@ -397,6 +418,10 @@ export default function DecryptForm() {
                 onFiles={handleFiles}
                 onPaste={handlePaste}
                 isProcessing={isProcessing}
+                collectedShares={shares.length}
+                requiredShares={requiredShares}
+                collectedData={chunksLoaded}
+                totalData={totalChunks}
             />
 
             <StatusBanner statusMessage={statusMessage} isProcessing={isProcessing} />

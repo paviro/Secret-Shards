@@ -1,7 +1,6 @@
-// QR Code Scanning Web Worker
-// This worker offloads CPU-intensive QR code scanning to a background thread
+// QR & barcode scanning worker powered by barcode-detector ponyfill (ZXing WASM)
 
-let jsQR: typeof import('jsqr').default | null = null;
+import { BarcodeDetector, prepareZXingModule, type DetectedBarcode } from 'barcode-detector/ponyfill';
 
 interface ScanRequest {
     type: 'scan';
@@ -11,9 +10,21 @@ interface ScanRequest {
     transferId: string;
 }
 
+export interface ScanLocation {
+    topLeftCorner: { x: number; y: number };
+    topRightCorner: { x: number; y: number };
+    bottomRightCorner: { x: number; y: number };
+    bottomLeftCorner: { x: number; y: number };
+}
+
+export interface ScanMatch {
+    data: string | null;
+    location: ScanLocation | null;
+}
+
 interface ScanResult {
     type: 'result';
-    data: string | null;
+    matches: ScanMatch[];
     transferId: string;
 }
 
@@ -26,47 +37,77 @@ interface ScanError {
 type WorkerMessage = ScanRequest;
 type WorkerResponse = ScanResult | ScanError;
 
-// Lazy load jsQR library
-async function ensureJsQR() {
-    if (!jsQR) {
-        const module = await import('jsqr');
-        jsQR = module.default;
+const wasmReadyPromise = prepareZXingModule({
+    overrides: {
+        locateFile: (path, prefix) => {
+            if (path.endsWith('.wasm')) {
+                return new URL(`/wasm/${path}`, self.location.origin).toString();
+            }
+            return prefix + path;
+        },
+    },
+});
+
+let detectorPromise: Promise<BarcodeDetector> | null = null;
+
+async function getBarcodeDetector() {
+    if (!detectorPromise) {
+        detectorPromise = (async () => {
+            await wasmReadyPromise;
+            return new BarcodeDetector({ formats: ['qr_code'] });
+        })();
     }
-    return jsQR;
+    return detectorPromise;
 }
 
-// Handle incoming messages
+function toScanLocation(detection: DetectedBarcode): ScanLocation | null {
+    if (!detection.cornerPoints || detection.cornerPoints.length < 4) {
+        return null;
+    }
+
+    const [topLeftCorner, topRightCorner, bottomRightCorner, bottomLeftCorner] = detection.cornerPoints;
+    return {
+        topLeftCorner,
+        topRightCorner,
+        bottomRightCorner,
+        bottomLeftCorner,
+    };
+}
+
 self.addEventListener('message', async (event: MessageEvent<WorkerMessage>) => {
     const message = event.data;
 
-    if (message.type === 'scan') {
-        try {
-            const qrScanner = await ensureJsQR();
+    if (message.type !== 'scan') {
+        return;
+    }
 
-            // Convert ArrayBuffer back to Uint8ClampedArray
-            const imageDataArray = new Uint8ClampedArray(message.imageData);
+    try {
+        const detector = await getBarcodeDetector();
+        const imageDataArray = new Uint8ClampedArray(message.imageData);
+        const imageData = new ImageData(imageDataArray, message.width, message.height);
 
-            // Scan for QR code
-            const result = qrScanner(imageDataArray, message.width, message.height, {
-                inversionAttempts: 'attemptBoth',
-            });
+        const detections = await detector.detect(imageData);
 
-            const response: ScanResult = {
-                type: 'result',
-                data: result ? result.data : null,
-                transferId: message.transferId,
-            };
+        const matches: ScanMatch[] = detections.map((detection) => ({
+            data: detection.rawValue ?? null,
+            location: toScanLocation(detection),
+        }));
 
-            self.postMessage(response);
-        } catch (error) {
-            const response: ScanError = {
-                type: 'error',
-                error: error instanceof Error ? error.message : String(error),
-                transferId: message.transferId,
-            };
+        const response: ScanResult = {
+            type: 'result',
+            matches,
+            transferId: message.transferId,
+        };
 
-            self.postMessage(response);
-        }
+        self.postMessage(response);
+    } catch (error) {
+        const response: ScanError = {
+            type: 'error',
+            error: error instanceof Error ? error.message : String(error),
+            transferId: message.transferId,
+        };
+
+        self.postMessage(response);
     }
 });
 

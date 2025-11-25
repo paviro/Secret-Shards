@@ -98,9 +98,10 @@ export async function scanPdfForQrCodes(
 
                 const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
                 const result = await qrWorker.scanImageData(imageData);
+                const match = result.matches.find(m => m.data);
 
-                if (result) {
-                    decodedText = result;
+                if (match?.data) {
+                    decodedText = match.data;
                     break;
                 }
             }
@@ -170,8 +171,9 @@ export async function scanImageForQrCodes(file: File): Promise<string | null> {
 
     const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
     const result = await qrWorker.scanImageData(imageData);
+    const match = result.matches.find(m => m.data);
 
     URL.revokeObjectURL(url);
-    return result;
+    return match?.data ?? null;
 }
 
