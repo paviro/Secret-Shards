@@ -11,6 +11,7 @@ Securely split your secrets using Shamir's Secret Sharing. Encrypt files or text
 - **Flexible Configuration**: Choose how many shares to generate (N) and how many are needed to recover (K)
 - **PDF Generation**: Automatically generates PDF documents with QR codes for each share
 - **QR Code Scanning**: Scan QR codes from PDFs, pictures or via your camera to decrypt your data
+- **Geocache Mode**: Specialized scanner for collecting multi-part secrets in physical locations (e.g. scavenger hunts)
 - **Client-Side Encryption**: All encryption happens in your browser - your secrets never leave your device
 
 ## How It Works
@@ -27,16 +28,28 @@ Securely split your secrets using Shamir's Secret Sharing. Encrypt files or text
    - When enough shares are combined (meeting the threshold), the secret is automatically decrypted
    - Download the recovered files or view the decrypted text
 
+3. **Geocache Mode**:
+   - Designed for outdoor adventures and scavenger hunts
+   - Persistent session storage: scans are saved to your device so you can close the browser between locations
+   - Full-screen scanner with progress tracking for shares and data chunks
+   - Automatically decrypts once all required parts are collected
+   - Explicit session management to clear data when finished
+
 ## Technical Details
 
 ### Encryption
 - Uses AES encryption to the data
-- Shamir's Secret Sharing for key splitting (using the [`shamir-secret-sharing`](https://www.npmjs.com/package/shamir-secret-sharing) library)
+- Shamir's Secret Sharing for key splitting (using [`shamir-secret-sharing`](https://www.npmjs.com/package/shamir-secret-sharing) library)
 - All cryptographic operations happen client-side in the browser
 
 ### PDF Generation
 - Each share is embedded in a PDF with QR codes
 - PDFs include metadata about the share configuration and how the binary format of the QR codes work
+
+### Geocache Mode
+- Uses LocalStorage to persist scanned shares and data chunks across browser sessions
+- Prevents data loss when moving between physical locations
+- Session data remains until explicitly cleared or a new session is started
 
 ### Security
 - **Zero Trust**: No data is sent to any server
