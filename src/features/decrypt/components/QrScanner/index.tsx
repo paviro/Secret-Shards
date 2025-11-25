@@ -5,6 +5,7 @@ import { useQrScanner, type ScanResult } from './hooks/useQrScanner';
 import CodeOverlay from './components/CodeOverlay';
 import ScannerHud from './components/ScannerHud';
 import ScannerControls from './components/ScannerControls';
+import { XMarkIcon } from '@heroicons/react/24/outline';
 
 interface QrScannerProps {
     onScan: (decodedText: string) => Promise<ScanResult> | ScanResult;
@@ -56,7 +57,7 @@ export default function QrScanner({
                     }}
                     className="absolute top-3 right-3 text-slate-400 hover:text-white z-10 bg-slate-800/50 hover:bg-slate-800 rounded-full p-2 transition-colors"
                 >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                    <XMarkIcon className="w-5 h-5" stroke="currentColor" strokeWidth={2} />
                 </button>
 
                 <h3 className="text-lg font-semibold text-white mb-4 text-center">Scan QR Code</h3>

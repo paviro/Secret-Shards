@@ -2,6 +2,7 @@
 
 import { useState, useEffect, type ReactNode } from 'react';
 import { motion, AnimatePresence, type Transition } from 'framer-motion';
+import { XMarkIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
 
 const layoutSpring: Transition = {
     type: 'spring',
@@ -189,15 +190,11 @@ export default function ExpandingInfoSection({
                                 className="p-2 text-slate-500 hover:text-slate-300 hover:bg-slate-800/50 rounded-lg transition-all"
                                 title="Dismiss"
                             >
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                </svg>
+                                <XMarkIcon className="w-4 h-4" stroke="currentColor" strokeWidth={2} />
                             </button>
                         ) : (
                             <div className="p-2 text-slate-400" title="Click to expand">
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                </svg>
+                                <ChevronDownIcon className="w-4 h-4" stroke="currentColor" strokeWidth={2} />
                             </div>
                         )}
                     </div>

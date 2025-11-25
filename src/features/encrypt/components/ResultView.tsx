@@ -1,5 +1,6 @@
 import JSZip from 'jszip';
 import ResultCard from '@/components/ResultCard';
+import { ArrowDownTrayIcon, DocumentArrowDownIcon } from '@heroicons/react/24/outline';
 
 interface ResultViewProps {
     result: {
@@ -64,7 +65,7 @@ export default function ResultView({ result, threshold, totalShares, onReset }: 
                     onClick={handleDownloadAll}
                     className="text-sm text-indigo-300 hover:text-indigo-200 flex items-center gap-1.5 transition-colors"
                 >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                    <ArrowDownTrayIcon className="w-4 h-4" stroke="currentColor" strokeWidth={1.5} />
                     Download All (.zip)
                 </button>
             }
@@ -83,7 +84,7 @@ export default function ResultView({ result, threshold, totalShares, onReset }: 
                                 download={pdf.name}
                                 className="flex items-center justify-center p-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-sm text-indigo-300 transition-colors"
                             >
-                                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                                <DocumentArrowDownIcon className="w-4 h-4 mr-2" stroke="currentColor" strokeWidth={1.5} />
                                 Share {i + 1}
                             </a>
                         ))}
@@ -112,7 +113,7 @@ export default function ResultView({ result, threshold, totalShares, onReset }: 
                             download={result.dataName}
                             className="inline-flex items-center px-6 py-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-cyan-300 transition-colors font-medium"
                         >
-                            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                            <ArrowDownTrayIcon className="w-5 h-5 mr-2" stroke="currentColor" strokeWidth={1.5} />
                             Download {result.dataName}
                         </a>
                         <p className="mt-4 text-xs text-slate-500">Note: The zip download also includes PNG and SVG versions of each QR code, allowing you to design your own PDFs or other materials if desired.</p>

@@ -1,4 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowPathIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { useRef, useEffect } from 'react';
 
 export type StatusMessage = {
@@ -69,14 +70,10 @@ export default function StatusBanner({ statusMessage, isProcessing, onClose }: S
                         >
                             <div className="flex items-center gap-2 h-full min-h-[24px]">
                                 {statusMessage.variant === 'info' && isProcessing && (
-                                    <svg className="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                    </svg>
+                                    <ArrowPathIcon className="w-4 h-4 animate-spin" stroke="currentColor" strokeWidth={2} />
                                 )}
                                 {statusMessage.variant === 'success' && (
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                    </svg>
+                                    <CheckIcon className="w-4 h-4" stroke="currentColor" strokeWidth={2} />
                                 )}
                                 <span className="text-center flex-1">{statusMessage.text}</span>
                                 <button
@@ -88,9 +85,7 @@ export default function StatusBanner({ statusMessage, isProcessing, onClose }: S
                                             'hover:bg-blue-500/10'
                                         }`}
                                 >
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                    </svg>
+                                    <XMarkIcon className="w-4 h-4" stroke="currentColor" strokeWidth={2} />
                                 </button>
                             </div>
 

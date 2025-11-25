@@ -1,3 +1,5 @@
+import { CheckIcon } from '@heroicons/react/24/outline';
+
 interface Todo {
     id: string;
     text: string;
@@ -26,7 +28,7 @@ export default function MissingDataList({ todos }: MissingDataListProps) {
                         )}
 
                         <div className={`w-6 h-6 rounded-full flex items-center justify-center border ${todo.done ? 'bg-green-500 border-green-500 text-slate-900' : 'border-slate-500 text-slate-500'}`}>
-                            {todo.done && <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>}
+                            {todo.done && <CheckIcon stroke="currentColor" strokeWidth={3} className="w-4 h-4 flex-shrink-0" />}
                         </div>
                         <span className={`text-sm ${todo.done ? 'text-green-400' : 'text-slate-300'}`}>{todo.text}</span>
                     </div>

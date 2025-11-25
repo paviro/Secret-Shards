@@ -2,7 +2,7 @@
 
 import { isLegalPagesEnabled } from '@/lib/config';
 import { notFound } from 'next/navigation';
-import { EnvelopeIcon, PhoneIcon } from '@heroicons/react/24/outline';
+import { EnvelopeIcon, PhoneIcon, BeakerIcon, ExclamationTriangleIcon, ArrowLeftIcon } from '@heroicons/react/24/outline';
 
 export default function LegalDisclosure() {
     if (!isLegalPagesEnabled()) {
@@ -69,9 +69,7 @@ export default function LegalDisclosure() {
                 <div className="mb-8">
                     <div className="flex items-center gap-3 mb-6">
                         <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500/20 to-purple-500/20 flex items-center justify-center border border-indigo-500/30">
-                            <svg className="w-6 h-6 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
+                            <ExclamationTriangleIcon className="w-7 h-7 text-indigo-400" strokeWidth={1.8} />
                         </div>
                         <h2 className="text-2xl font-semibold text-slate-200">Disclaimer</h2>
                     </div>
@@ -114,9 +112,7 @@ export default function LegalDisclosure() {
                 <div className="mb-8">
                     <div className="flex items-center gap-3 mb-6">
                         <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-500/20 to-red-500/20 flex items-center justify-center border border-amber-500/30">
-                            <svg className="w-6 h-6 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                            </svg>
+                            <BeakerIcon className="w-6 h-6 text-amber-400" stroke="currentColor" strokeWidth={1.5} />
                         </div>
                         <h2 className="text-2xl font-semibold text-slate-200">Important</h2>
                     </div>
@@ -140,9 +136,7 @@ export default function LegalDisclosure() {
                         href="/"
                         className="inline-flex items-center gap-2 text-cyan-400 hover:text-cyan-300 transition-colors"
                     >
-                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                        </svg>
+                        <ArrowLeftIcon className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" />
                         Back to Secret Shards
                     </a>
                 </div>

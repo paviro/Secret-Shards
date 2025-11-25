@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { ArrowPathIcon, BoltIcon, BoltSlashIcon } from '@heroicons/react/24/outline';
+import { ArrowPathIcon, BoltIcon, BoltSlashIcon, XMarkIcon } from '@heroicons/react/24/outline';
 
 interface ScannerControlsProps {
     hasFlash: boolean;
@@ -35,16 +35,14 @@ export default function ScannerControls({
                     onClick={onReset}
                     className={`${hudBtnClass} bg-red-500/20 hover:bg-red-500/30 border-red-500/30 text-red-300`}
                 >
-                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
+                    <XMarkIcon className="w-8 h-8" stroke="currentColor" strokeWidth={1} />
                 </button>
             )}
 
             {hasFlash && (
                 <button
                     onClick={onToggleFlash}
-                    className={variant === 'default' 
+                    className={variant === 'default'
                         ? `${defaultBtnClass} ${flashOn ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/25' : 'bg-slate-800 hover:bg-slate-700 text-slate-300'}`
                         : `${hudBtnClass} ${flashOn ? 'bg-yellow-500/20 border-yellow-500/50 text-yellow-200' : 'bg-black/30 hover:bg-black/50 text-white'}`
                     }

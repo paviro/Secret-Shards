@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import QrScanner, { ScanResult } from './QrScanner';
 import { useFileDrop } from '@/hooks/useFileDrop';
+import { ArrowDownTrayIcon, DocumentIcon, QrCodeIcon } from '@heroicons/react/24/outline';
 
 interface InputZoneProps {
     onScan: (text: string) => Promise<ScanResult> | ScanResult;
@@ -63,7 +64,7 @@ export default function InputZone({
                 <div className="space-y-6 relative z-10">
                     <div className="flex flex-col items-center gap-4">
                         <div className="p-4 bg-slate-800 rounded-full ring-1 ring-slate-700 shadow-lg">
-                            <svg className="w-8 h-8 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
+                            <DocumentIcon className="w-8 h-8 text-indigo-400 flex-shrink-0" />
                         </div>
                         <h3 className="text-lg font-medium text-slate-200">
                             Drop files, paste text, or scan QR
@@ -78,7 +79,7 @@ export default function InputZone({
                             onClick={() => setScanning(true)}
                             className="py-3 px-4 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm font-medium"
                         >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" /></svg>
+                            <QrCodeIcon className="w-5 h-5 text-indigo-400 flex-shrink-0" />
                             Scan QR Code
                         </button>
 
@@ -99,7 +100,7 @@ export default function InputZone({
                                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
                             />
                             <button className="w-full h-full py-3 px-4 bg-slate-800 group-hover:bg-slate-700 border border-slate-700 group-hover:border-slate-600 text-slate-300 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm font-medium">
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                                <ArrowDownTrayIcon className="w-5 h-5 text-indigo-400 flex-shrink-0" />
                                 Select Files
                             </button>
                         </div>

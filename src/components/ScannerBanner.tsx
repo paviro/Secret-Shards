@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { MapPinIcon } from '@heroicons/react/24/outline';
+import { MapPinIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
 import ExpandingInfoSection from './ExpandingInfoSection';
 
 export default function ScannerBanner() {
@@ -32,9 +32,7 @@ export default function ScannerBanner() {
               className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-semibold rounded-lg transition-colors flex items-center gap-2 shadow-lg shadow-emerald-900/20"
             >
               <span>Launch Scanner</span>
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-              </svg>
+              <ArrowRightIcon className="w-4 h-4 pt-1" stroke="currentColor" strokeWidth={3} />
             </Link>
             <button
               onClick={(e) => {
