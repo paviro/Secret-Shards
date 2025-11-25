@@ -19,7 +19,7 @@ export default function EncryptForm() {
     const [title, setTitle] = useState('Secret Key Share');
     const [isProcessing, setIsProcessing] = useState(false);
     const [statusMessage, setStatusMessage] = useState<StatusMessage | null>(null);
-    const [result, setResult] = useState<{ pdfs: { name: string; url: string }[]; dataUrl?: string; dataName?: string } | null>(null);
+    const [result, setResult] = useState<{ pdfs: { name: string; url: string }[]; dataUrl?: string; dataName?: string; qrImages: { name: string; data: Uint8Array | string }[] } | null>(null);
 
     // Auto-hide status message after a short delay unless explicitly disabled
     useEffect(() => {
@@ -90,7 +90,7 @@ export default function EncryptForm() {
                 dataName = jobResult.dataFile.name;
             }
 
-            setResult({ pdfs, dataUrl, dataName });
+            setResult({ pdfs, dataUrl, dataName, qrImages: jobResult.qrImages });
 
         } catch (e) {
             console.error(e);
@@ -167,7 +167,7 @@ export default function EncryptForm() {
                     </button>
                 </>
             ) : (
-                <ResultView result={result} onReset={handleReset} />
+                <ResultView result={result} threshold={threshold} totalShares={shares} onReset={handleReset} />
             )}
         </div>
     );

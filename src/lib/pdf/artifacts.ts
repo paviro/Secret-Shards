@@ -1,6 +1,8 @@
 import { packShare, packData, splitData, Algorithm } from '@/lib/protocol/format';
 import { generatePdf } from './generator';
 import type { EncryptJobResult, SecretSharesData } from '../encryption/types';
+import QRCode from 'qrcode';
+import { arrayBufferToBase64 } from './draw';
 
 const MAX_QR_BYTES = 2100;
 const QR_OVERHEAD_BYTES = 50;
@@ -28,6 +30,8 @@ export async function generateShareArtifacts(
     }
 
     const pdfs: EncryptJobResult['pdfs'] = [];
+    const qrImages: EncryptJobResult['qrImages'] = [];
+
     for (let i = 0; i < keyShares.length; i++) {
         const shareBlock = packShare(id, options.threshold, options.shares, i + 1, keyShares[i], iv);
         const pdfBlob = await generatePdf(shareBlock, dataBlocks, i + 1, options.shares, options.threshold, options.title);
@@ -35,6 +39,91 @@ export async function generateShareArtifacts(
         pdfs.push({
             name: `share - ${i + 1} -of - ${options.shares}.pdf`,
             data: new Uint8Array(pdfBuffer),
+        });
+
+        // Generate QR code images for this share
+        const shareBase64 = arrayBufferToBase64(shareBlock);
+        const shareIndex = i + 1;
+
+        // Generate SVG
+        const svgString = await QRCode.toString(shareBase64, {
+            type: 'svg',
+            errorCorrectionLevel: 'M',
+            margin: 0,
+            color: {
+                dark: '#000000',
+                light: '#00000000' // Transparent background
+            }
+        });
+        qrImages.push({
+            name: `shares/svg/share-${shareIndex}-of-${options.shares}.svg`,
+            data: svgString
+        });
+
+        // Generate PNG
+        const pngDataUrl = await QRCode.toDataURL(shareBase64, {
+            errorCorrectionLevel: 'M',
+            width: 1500,
+            margin: 0,
+            color: {
+                dark: '#000000',
+                light: '#00000000' // Transparent background
+            }
+        });
+        // Convert base64 data URL to Uint8Array
+        const base64Data = pngDataUrl.split(',')[1];
+        const binaryString = atob(base64Data);
+        const pngBuffer = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+            pngBuffer[i] = binaryString.charCodeAt(i);
+        }
+        qrImages.push({
+            name: `shares/png/share-${shareIndex}-of-${options.shares}.png`,
+            data: pngBuffer
+        });
+    }
+
+    // Generate QR code images for data blocks
+    for (let i = 0; i < dataBlocks.length; i++) {
+        const dataBlock = dataBlocks[i];
+        const dataBase64 = arrayBufferToBase64(dataBlock);
+        const dataIndex = i + 1;
+
+        // Generate SVG
+        const svgString = await QRCode.toString(dataBase64, {
+            type: 'svg',
+            errorCorrectionLevel: 'L',
+            margin: 0,
+            color: {
+                dark: '#000000',
+                light: '#00000000' // Transparent background
+            }
+        });
+        qrImages.push({
+            name: `encrypted_data/svg/data-${dataIndex}-of-${dataBlocks.length}.svg`,
+            data: svgString
+        });
+
+        // Generate PNG
+        const pngDataUrl = await QRCode.toDataURL(dataBase64, {
+            errorCorrectionLevel: 'L',
+            width: 1500,
+            margin: 0,
+            color: {
+                dark: '#000000',
+                light: '#00000000' // Transparent background
+            }
+        });
+        // Convert base64 data URL to Uint8Array
+        const base64Data = pngDataUrl.split(',')[1];
+        const binaryString = atob(base64Data);
+        const pngBuffer = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+            pngBuffer[i] = binaryString.charCodeAt(i);
+        }
+        qrImages.push({
+            name: `encrypted_data/png/data-${dataIndex}-of-${dataBlocks.length}.png`,
+            data: pngBuffer
         });
     }
 
@@ -46,6 +135,7 @@ export async function generateShareArtifacts(
             name: options.dataFileName,
             data: fullDataBlock,
         },
+        qrImages,
     };
 }
 

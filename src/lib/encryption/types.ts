@@ -12,6 +12,7 @@ export interface EncryptJobInput {
 export interface EncryptJobResult {
     pdfs: { name: string; data: Uint8Array }[];
     dataFile: { name: string; data: Uint8Array };
+    qrImages: { name: string; data: Uint8Array | string }[];
 }
 
 export interface RecoverPayloadInput {
