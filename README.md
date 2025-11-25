@@ -24,7 +24,7 @@ Securely split your secrets using Shamir's Secret Sharing. Encrypt files or text
    - Download the PDFs and encrypted data file
 
 2. **Decrypt Mode**:
-   - Scan QR codes from the PDF files and upload the encrypted data file
+   - Scan QR codes from the PDF files and select the encrypted data file
    - When enough shares are combined (meeting the threshold), the secret is automatically decrypted
    - Download the recovered files or view the decrypted text
 

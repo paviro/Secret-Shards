@@ -42,7 +42,7 @@ export default function FileDropzone({ files, onFilesChange }: FileDropzoneProps
                 onClick={() => fileInputRef.current?.click()}
             >
                 <input
-                    id="file-upload"
+                    id="file-select"
                     name="files"
                     ref={fileInputRef}
                     type="file"
@@ -66,7 +66,7 @@ export default function FileDropzone({ files, onFilesChange }: FileDropzoneProps
                         </div>
                         <div>
                             <p className="text-sm font-medium text-slate-300 group-hover:text-indigo-300 transition-colors">
-                                Click to upload or drag and drop
+                                Click to select or drag and drop
                             </p>
                             <p className="text-xs text-slate-500 mt-1">
                                 Any file type supported
