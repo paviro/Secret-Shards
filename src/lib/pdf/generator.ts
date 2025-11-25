@@ -403,3 +403,4 @@ export async function generatePdf(
 
     return doc.output('blob');
 }
+
