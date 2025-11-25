@@ -164,9 +164,9 @@ export default function EncryptForm() {
                     <button
                         onClick={handleEncrypt}
                         disabled={(!text && files.length === 0) || isProcessing || !isShareConfigurationValid(shares, threshold)}
-                        className="w-full py-4 bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-indigo-400 hover:to-cyan-400 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-[0.99]"
+                        className="w-full py-4 bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-500/40 hover:border-indigo-500/50 text-white font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-indigo-500/20 disabled:hover:border-indigo-500/40"
                     >
-                        {isProcessing ? 'Encrypting...' : 'Encrypt & Generate PDFs'}
+                        {isProcessing ? 'Encrypting...' : 'Encrypt & Generate Shares'}
                     </button>
                 </>
             ) : (
