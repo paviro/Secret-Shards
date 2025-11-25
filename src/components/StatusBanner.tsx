@@ -1,4 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
+import { useRef, useEffect } from 'react';
 
 export type StatusMessage = {
     variant: 'info' | 'success' | 'error';
@@ -18,6 +19,16 @@ interface StatusBannerProps {
 }
 
 export default function StatusBanner({ statusMessage, isProcessing, onClose }: StatusBannerProps) {
+    // Generate a unique key internally whenever the message changes
+    const internalKeyRef = useRef(0);
+    const prevMessageRef = useRef<StatusMessage | null>(null);
+
+    useEffect(() => {
+        if (statusMessage !== prevMessageRef.current) {
+            internalKeyRef.current++;
+            prevMessageRef.current = statusMessage;
+        }
+    }, [statusMessage]);
     return (
         <AnimatePresence>
             {statusMessage && (
@@ -35,7 +46,7 @@ export default function StatusBanner({ statusMessage, isProcessing, onClose }: S
                     {/* Countdown timer shows when autoHide is not explicitly disabled (defaults to true) */}
                     {(statusMessage.autoHide ?? true) && (
                         <motion.div
-                            key={statusMessage.text + statusMessage.variant}
+                            key={`countdown-${internalKeyRef.current}`}
                             initial={{ width: "100%" }}
                             animate={{ width: "0%" }}
                             transition={{
@@ -46,7 +57,7 @@ export default function StatusBanner({ statusMessage, isProcessing, onClose }: S
                             className="absolute bottom-0 left-0 h-1 bg-current opacity-50"
                         />
                     )}
-                    
+
                     <AnimatePresence mode="popLayout" initial={false}>
                         <motion.div
                             key={statusMessage.key ?? statusMessage.text}
@@ -72,7 +83,10 @@ export default function StatusBanner({ statusMessage, isProcessing, onClose }: S
                                     type="button"
                                     onClick={onClose}
                                     aria-label="Dismiss message"
-                                    className="inline-flex items-center justify-center rounded-full p-1 hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
+                                    className={`inline-flex items-center justify-center rounded-lg p-2 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900 ${statusMessage.variant === 'success' ? 'hover:bg-green-500/10' :
+                                        statusMessage.variant === 'error' ? 'hover:bg-red-500/10' :
+                                            'hover:bg-blue-500/10'
+                                        }`}
                                 >
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
