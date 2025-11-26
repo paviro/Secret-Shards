@@ -6,6 +6,8 @@ import CodeOverlay from './components/CodeOverlay';
 import ScannerHud from './components/ScannerHud';
 import ScannerControls from './components/ScannerControls';
 import { XMarkIcon } from '@heroicons/react/24/outline';
+import { motion, type Variants } from 'framer-motion';
+import { useEffect } from 'react';
 
 interface QrScannerProps {
     onScan: (decodedText: string) => Promise<ScanResult> | ScanResult;
@@ -47,12 +49,55 @@ export default function QrScanner({
         onScan
     });
 
+    const backdropVariants = {
+        initial: { opacity: 0 },
+        animate: { opacity: 1, transition: { duration: 0.25, ease: 'easeOut' } },
+        exit: { opacity: 0, transition: { duration: 0.25, ease: 'easeIn' } }
+    } satisfies Variants;
+
+    const cardVariants = {
+        initial: { scale: 0.85, opacity: 0, y: 32 },
+        animate: {
+            scale: 1,
+            opacity: 1,
+            y: 0,
+            transition: { type: 'spring', stiffness: 360, damping: 20, mass: 0.7 }
+        },
+        exit: {
+            scale: [1, 1.08, 0.82],
+            opacity: [1, 1, 0],
+            y: [0, -4, 18],
+            transition: {
+                duration: 0.3,
+                ease: ['easeOut', 'easeIn'] as const,
+                times: [0, 0.45, 1]
+            }
+        }
+    } satisfies Variants;
+
+    useEffect(() => {
+        return () => {
+            stopStream();
+        };
+    }, [stopStream]);
+
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-            <div className="bg-slate-900 rounded-2xl border border-slate-800 px-6 pt-6 pb-4 w-full max-w-md relative shadow-2xl flex flex-col max-h-[90vh]">
+        <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+            variants={backdropVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+        >
+            <motion.div
+                className="bg-slate-900 rounded-2xl border border-slate-800 px-6 pt-6 pb-4 w-full max-w-md relative shadow-2xl flex flex-col max-h-[90vh]"
+                variants={cardVariants}
+                initial="initial"
+                animate="animate"
+                exit="exit"
+            >
                 <button
                     onClick={() => {
-                        stopStream();
                         onClose();
                     }}
                     className="absolute top-3 right-3 text-slate-400 hover:text-white z-10 bg-slate-800/50 hover:bg-slate-800 rounded-full p-2 transition-colors"
@@ -104,7 +149,7 @@ export default function QrScanner({
                     showSwitchCamera={cameras.length > 1}
                     onSwitchCamera={switchCamera}
                 />
-            </div>
-        </div>
+            </motion.div>
+        </motion.div>
     );
 }

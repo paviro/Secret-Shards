@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import QrScanner, { ScanResult } from './QrScanner';
 import { useFileDrop } from '@/hooks/useFileDrop';
 import { ArrowDownTrayIcon, DocumentIcon, QrCodeIcon } from '@heroicons/react/24/outline';
+import { AnimatePresence } from 'framer-motion';
 
 interface InputZoneProps {
     onScan: (text: string) => Promise<ScanResult> | ScanResult;
@@ -37,10 +38,18 @@ export default function InputZone({
         }
     });
 
+    const hasAllData = totalData !== null && collectedData >= totalData;
+
+    useEffect(() => {
+        if (scanning && hasAllData) {
+            setScanning(false);
+        }
+    }, [scanning, hasAllData]);
+
     return (
         <>
-            {scanning && (
-                <div className="mb-8">
+            <AnimatePresence>
+                {scanning && (
                     <QrScanner
                         onScan={onScan}
                         onClose={() => setScanning(false)}
@@ -49,8 +58,8 @@ export default function InputZone({
                         collectedData={collectedData}
                         totalData={totalData}
                     />
-                </div>
-            )}
+                )}
+            </AnimatePresence>
 
             <div
                 className="bg-slate-900/50 backdrop-blur-xl rounded-2xl border border-slate-800 p-8 shadow-xl text-center relative overflow-hidden mb-8"
