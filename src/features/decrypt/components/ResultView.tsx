@@ -1,33 +1,33 @@
-import { Payload } from '@/lib/protocol/payload';
+import { DataArchive } from '@/lib/protocol/dataArchive';
 import ResultCard from '@/components/ResultCard';
 import { ArrowDownTrayIcon } from '@heroicons/react/24/outline';
 
 interface ResultViewProps {
-    payload: Payload;
+    dataArchive: DataArchive;
     onReset: () => void;
     resetLabel?: string;
 }
 
-export default function ResultView({ payload, onReset, resetLabel }: ResultViewProps) {
+export default function ResultView({ dataArchive, onReset, resetLabel }: ResultViewProps) {
     return (
         <ResultCard
             title="Decryption Successful!"
             onReset={onReset}
             resetLabel={resetLabel || "Decrypt Another Secret"}
         >
-            {(payload.type === 'text' || payload.type === 'mixed') && (
+            {(dataArchive.type === 'text' || dataArchive.type === 'mixed') && (
                 <div className="bg-slate-950 rounded-xl p-4 border border-slate-800 mb-6">
                     <h3 className="text-sm font-medium text-slate-400 mb-2">Secret Message:</h3>
                     <p className="text-slate-300 whitespace-pre-wrap break-words font-mono text-sm">
-                        {payload.type === 'text' ? payload.content : payload.text}
+                        {dataArchive.type === 'text' ? dataArchive.content : dataArchive.text}
                     </p>
                 </div>
             )}
 
-            {(payload.type === 'files' || payload.type === 'mixed') && (
+            {(dataArchive.type === 'files' || dataArchive.type === 'mixed') && (
                 <div className="space-y-3 mb-6">
                     <h3 className="text-sm font-medium text-slate-300">Decrypted Files:</h3>
-                    {payload.files.map((file, i) => {
+                    {dataArchive.files.map((file, i) => {
                         const blob = new Blob([file.content as BlobPart], { type: file.type });
                         const url = URL.createObjectURL(blob);
                         return (

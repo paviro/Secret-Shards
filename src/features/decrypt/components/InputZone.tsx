@@ -8,8 +8,8 @@ interface InputZoneProps {
     onFiles: (files: FileList) => void;
     onPaste: (text: string) => void;
     isProcessing: boolean;
-    collectedShares: number;
-    requiredShares: number;
+    collectedKeyShares: number;
+    requiredKeyShares: number;
     collectedData: number;
     totalData: number | null;
 }
@@ -19,8 +19,8 @@ export default function InputZone({
     onFiles,
     onPaste,
     isProcessing,
-    collectedShares,
-    requiredShares,
+    collectedKeyShares,
+    requiredKeyShares,
     collectedData,
     totalData
 }: InputZoneProps) {
@@ -44,8 +44,8 @@ export default function InputZone({
                     <QrScanner
                         onScan={onScan}
                         onClose={() => setScanning(false)}
-                        collectedShares={collectedShares}
-                        requiredShares={requiredShares}
+                        collectedKeyShares={collectedKeyShares}
+                        requiredKeyShares={requiredKeyShares}
                         collectedData={collectedData}
                         totalData={totalData}
                     />

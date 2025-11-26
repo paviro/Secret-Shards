@@ -1,8 +1,10 @@
 'use client';
 
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { unpackShare, unpackData, identifyBlockType, BlockType, ShareBlock } from '@/lib/protocol/format';
-import { Payload } from '@/lib/protocol/payload';
+import { BlockType, identifyBlockType } from '@/lib/protocol/shared';
+import { unpackKeyShare, KeyShareBlock } from '@/lib/protocol/keyShare';
+import { unpackEncryptedPayload } from '@/lib/protocol/encryptedPayload';
+import { DataArchive } from '@/lib/protocol/dataArchive';
 import { reconstructSecret } from '@/lib/encryption/core';
 import { scanPdfForQrCodes, scanImageForQrCodes } from '@/lib/pdf/scan';
 import InputZone from './components/InputZone';
@@ -14,7 +16,7 @@ import { ScanResult } from './components/QrScanner';
 import ScannerBanner from '@/components/ScannerBanner';
 
 export default function DecryptForm() {
-    const [shares, setShares] = useState<ShareBlock[]>([]);
+    const [keyShares, setKeyShares] = useState<KeyShareBlock[]>([]);
 
     // Data Chunks State
     const [dataChunks, setDataChunks] = useState<Map<number, Uint8Array>>(new Map());
@@ -36,19 +38,19 @@ export default function DecryptForm() {
     }, [dataId]);
 
     useEffect(() => {
-        if (shares.length > 0) {
-            shareIdRef.current = shares[0].id;
-        } else if (shares.length === 0) {
+        if (keyShares.length > 0) {
+            shareIdRef.current = keyShares[0].id;
+        } else if (keyShares.length === 0) {
             shareIdRef.current = null;
         }
-    }, [shares]);
+    }, [keyShares]);
 
     useEffect(() => {
         totalChunksRef.current = totalChunks;
     }, [totalChunks]);
 
     // Result state
-    const [decryptedPayload, setDecryptedPayload] = useState<Payload | null>(null);
+    const [decryptedDataArchive, setDecryptedDataArchive] = useState<DataArchive | null>(null);
 
     const [isProcessing, setIsProcessing] = useState(false);
     const [statusMessage, setStatusMessage] = useState<StatusMessage | null>(null);
@@ -73,8 +75,8 @@ export default function DecryptForm() {
         try {
             const type = identifyBlockType(bytes);
 
-            if (type === BlockType.Share) {
-                const share = unpackShare(bytes);
+            if (type === BlockType.KeyShare) {
+                const share = unpackKeyShare(bytes);
                 let added = false;
 
                 // Check ID match with existing data (using ref)
@@ -92,11 +94,11 @@ export default function DecryptForm() {
                 }
 
                 // Check for duplicate synchronously using state
-                if (shares.some(s => s.shareIndex === share.shareIndex && s.id === share.id)) {
+                if (keyShares.some(s => s.shareIndex === share.shareIndex && s.id === share.id)) {
                     return { status: 'duplicate', message: 'Share already added.' };
                 }
 
-                setShares(prev => {
+                setKeyShares(prev => {
                     if (prev.some(s => s.shareIndex === share.shareIndex && s.id === share.id)) {
                         return prev;
                     }
@@ -126,8 +128,8 @@ export default function DecryptForm() {
                 // But since we checked shares.some above, it should be fine.
                 return { status: 'duplicate', message: 'Share already added.', label: `Share #${share.shareIndex + 1}` };
 
-            } else if (type === BlockType.Data) {
-                const data = unpackData(bytes);
+            } else if (type === BlockType.EncryptedPayload) {
+                const data = unpackEncryptedPayload(bytes);
 
                 // Check ID match
                 if (shareIdRef.current && shareIdRef.current !== data.id) {
@@ -177,7 +179,7 @@ export default function DecryptForm() {
             return { status: 'error', message: 'Invalid format.', label: 'Invalid Code' };
         }
         return { status: 'error', message: 'Unknown block type.', label: 'Invalid Code' };
-    }, [encryptionInfo, shares, dataChunks]);
+    }, [encryptionInfo, keyShares, dataChunks]);
 
     // Helper to process base64 string
     const processBase64 = useCallback((base64: string, sourceName: string): ScanResult => {
@@ -303,7 +305,7 @@ export default function DecryptForm() {
         if (currentSessionId !== scanSessionIdRef.current) return;
         setIsProcessing(false);
 
-        if (successfulScans > 0 || shares.length > 0 || dataChunks.size > 0) {
+        if (successfulScans > 0 || keyShares.length > 0 || dataChunks.size > 0) {
             setStatusMessage(null);
         } else {
             setStatusMessage({ variant: 'info', text: `No valid new shares or data found in files.` });
@@ -312,12 +314,12 @@ export default function DecryptForm() {
 
     const resetSessionState = () => {
         scanSessionIdRef.current += 1;
-        setShares([]);
+        setKeyShares([]);
         setDataChunks(new Map());
         setTotalChunks(null);
         setDataId(null);
         setEncryptionInfo(null);
-        setDecryptedPayload(null);
+        setDecryptedDataArchive(null);
         setIsProcessing(false);
     };
 
@@ -326,29 +328,29 @@ export default function DecryptForm() {
         setStatusMessage(null);
     };
 
-    const handleFatalPayloadError = (message: string) => {
+    const handleFatalDataArchiveError = (message: string) => {
         resetSessionState();
         setStatusMessage({ variant: 'error', text: message, autoHide: false });
     };
 
     const handleDecrypt = async () => {
         const currentSessionId = scanSessionIdRef.current;
-        if (!encryptionInfo || !totalChunks || dataChunks.size !== totalChunks || shares.length === 0) return;
+        if (!encryptionInfo || !totalChunks || dataChunks.size !== totalChunks || keyShares.length === 0) return;
 
         try {
-            const keyShares = shares.map(s => s.keyShare);
+            const keyShareValues = keyShares.map(s => s.keyShare);
             const sortedChunks = Array.from(dataChunks.entries())
                 .sort((a, b) => a[0] - b[0])
                 .map(([, chunk]) => chunk);
 
             const payload = await reconstructSecret({
-                keyShares,
+                keyShares: keyShareValues,
                 chunks: sortedChunks,
                 iv: encryptionInfo.iv,
                 algorithm: encryptionInfo.algorithm,
             });
             if (currentSessionId !== scanSessionIdRef.current) return;
-            setDecryptedPayload(payload);
+            setDecryptedDataArchive(payload);
 
             setStatusMessage(null);
 
@@ -356,7 +358,7 @@ export default function DecryptForm() {
             console.error(e);
             const message = e instanceof Error ? e.message : String(e);
             if (message.includes('Unsupported payload version')) {
-                handleFatalPayloadError('Unsupported payload version detected. Try refreshing the page in case a new version is available.');
+                handleFatalDataArchiveError('Unsupported payload version detected. Try refreshing the page in case a new version is available.');
                 return;
             }
             setStatusMessage({ variant: 'error', text: "Decryption failed! Are the shares correct?", autoHide: false });
@@ -364,21 +366,21 @@ export default function DecryptForm() {
     };
 
     // Calculate Todo items
-    const requiredShares = shares.length > 0 ? shares[0].threshold : 0;
-    const missingShares = Math.max(0, requiredShares - shares.length);
+    const requiredKeyShares = keyShares.length > 0 ? keyShares[0].threshold : 0;
+    const missingKeyShares = Math.max(0, requiredKeyShares - keyShares.length);
 
     // Data Status
     const chunksLoaded = dataChunks.size;
     const chunksTotal = totalChunks || '?';
     const isDataReady = totalChunks !== null && chunksLoaded === totalChunks;
 
-    const isReady = shares.length >= requiredShares && isDataReady && requiredShares > 0 && !!encryptionInfo;
+    const isReady = keyShares.length >= requiredKeyShares && isDataReady && requiredKeyShares > 0 && !!encryptionInfo;
 
     useEffect(() => {
-        if (isReady && !decryptedPayload) {
+        if (isReady && !decryptedDataArchive) {
             void handleDecrypt();
         }
-    }, [isReady, decryptedPayload]);
+    }, [isReady, decryptedDataArchive]);
 
     const todos: Array<{ id: string; text: string; done: boolean; progress: number }> = [];
 
@@ -393,19 +395,19 @@ export default function DecryptForm() {
     }
 
     // Shares Todo
-    if (requiredShares === 0) {
+    if (requiredKeyShares === 0) {
         todos.push({ id: 'shares', text: 'Encryption Key Shares', done: false, progress: 0 });
     } else {
-        const progress = Math.min((shares.length / requiredShares) * 100, 100);
-        if (missingShares > 0) {
-            todos.push({ id: 'shares', text: `Add ${missingShares} more share${missingShares === 1 ? '' : 's'}`, done: false, progress });
+        const progress = Math.min((keyShares.length / requiredKeyShares) * 100, 100);
+        if (missingKeyShares > 0) {
+            todos.push({ id: 'shares', text: `Add ${missingKeyShares} more share${missingKeyShares === 1 ? '' : 's'}`, done: false, progress });
         } else {
-            todos.push({ id: 'shares', text: `${shares.length} Shares Collected (Threshold: ${requiredShares})`, done: true, progress: 100 });
+            todos.push({ id: 'shares', text: `${keyShares.length} Shares Collected (Threshold: ${requiredKeyShares})`, done: true, progress: 100 });
         }
     }
 
-    if (decryptedPayload) {
-        return <ResultView payload={decryptedPayload} onReset={handleReset} />;
+    if (decryptedDataArchive) {
+        return <ResultView dataArchive={decryptedDataArchive} onReset={handleReset} />;
     }
 
     return (
@@ -417,8 +419,8 @@ export default function DecryptForm() {
                 onFiles={handleFiles}
                 onPaste={handlePaste}
                 isProcessing={isProcessing}
-                collectedShares={shares.length}
-                requiredShares={requiredShares}
+                collectedKeyShares={keyShares.length}
+                requiredKeyShares={requiredKeyShares}
                 collectedData={chunksLoaded}
                 totalData={totalChunks}
             />
@@ -432,11 +434,11 @@ export default function DecryptForm() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <MissingDataList todos={todos} />
                 <LoadedItemsList
-                    shares={shares}
+                    keyShares={keyShares}
                     dataChunks={dataChunks}
                     totalChunks={totalChunks}
                     dataId={dataId}
-                    onRemoveShare={(share) => setShares(s => s.filter(x => x !== share))}
+                    onRemoveKeyShare={(share) => setKeyShares(s => s.filter(x => x !== share))}
                     onClearData={() => {
                         setDataChunks(new Map());
                         setTotalChunks(null);

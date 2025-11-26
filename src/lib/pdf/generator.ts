@@ -57,7 +57,7 @@ export async function generatePdf(
     doc.setFontSize(10);
 
     const paragraphs = dataBlocks.length > 0 ? [
-        `This document contains both a cryptographic share of a secret key and an encrypted data payload.`,
+        `This document contains both a cryptographic share of a secret key and an encrypted data archive.`,
         `Individually, a share reveals nothing about the secret. To recover the original secret and decrypt the data, you must combine this share with at least ${threshold - 1} other distinct shares.`,
         `This ensures security even if some shares are lost or stolen, provided fewer than ${threshold} shares are compromised. Keep this document safe and secure.`
     ] : [
@@ -146,7 +146,7 @@ export async function generatePdf(
     doc.setFontSize(10);
     doc.setFont('Geist', 'normal');
     doc.setTextColor(COLORS.text.main);
-    doc.text('Share/data QR blocks and the decrypted payload follow these layouts:', margin, y);
+    doc.text('Share/data QR blocks and the decrypted archive follow these layouts:', margin, y);
     y += 6;
 
     const colGap = 4;
@@ -175,22 +175,22 @@ export async function generatePdf(
         '0x18   | EncAlg (1b) | IV (12b)',
         '0x25   | Key Share (var)'
     ];
-    drawCodeBlock(doc, shareSpec, margin, y, col1Width, leftTopH, 'Share QR Code (0x01)', compactOpts);
+    drawCodeBlock(doc, shareSpec, margin, y, col1Width, leftTopH, 'Key Share (0x01)', compactOpts);
 
     // Data Block Spec (Bottom Left)
     const dataSpec = [
         '0x00   | Magic "SHD"',
         '0x03   | Ver = 0x01',
         '0x04   | ID (16b UUID)',
-        '0x14   | Type = 0x02 (Data)',
+        '0x14   | Type = 0x02 (Encrypted Chunk)',
         '0x15   | Total Chunks (1b)',
         '0x16   | Chunk Index (1b)',
-        '0x17   | Ciphertext (payload)',
+        '0x17   | Encrypted Data Archive',
     ];
-    drawCodeBlock(doc, dataSpec, margin, y + leftTopH + colGap, col1Width, leftBottomH, 'Data QR Code (0x02)', compactOpts);
+    drawCodeBlock(doc, dataSpec, margin, y + leftTopH + colGap, col1Width, leftBottomH, 'Encrypted Payload (0x02)', compactOpts);
 
-    // Payload Spec (Top Right)
-    const payloadSpec = [
+    // Data archive Spec (Top Right)
+    const archiveSpec = [
         '0x00   | Version = 0x01',
         '0x01   | Compression (0x00=None, 0x01=GZip)',
         '0x02   | Body (gzip compressed if Compression=0x01)',
@@ -203,7 +203,7 @@ export async function generatePdf(
         '       |                   FileCount (1b)',
         '       |                   File entries'
     ];
-    drawCodeBlock(doc, payloadSpec, margin + col1Width + colGap, y, col2Width, rightTopH, 'Decrypted Payload (Top Level)', compactOpts);
+    drawCodeBlock(doc, archiveSpec, margin + col1Width + colGap, y, col2Width, rightTopH, 'Decrypted Data Archive', compactOpts);
 
     // File Entry Spec (Bottom Right)
     const entrySpec = [
@@ -214,7 +214,7 @@ export async function generatePdf(
         'var    | Content Length (4b LE)',
         'var    | Content Data (bytes)'
     ];
-    drawCodeBlock(doc, entrySpec, margin + col1Width + colGap, y + rightTopH + colGap, col2Width, rightBottomH, 'File Entry Structure', compactOpts);
+    drawCodeBlock(doc, entrySpec, margin + col1Width + colGap, y + rightTopH + colGap, col2Width, rightBottomH, 'File Entry Structure in Decrypted Data Archive', compactOpts);
 
     y += blockHeight + 2;
 
@@ -298,8 +298,8 @@ export async function generatePdf(
             doc,
             width,
             margin,
-            'Encrypted Data Payload',
-            'The AES-GCM 256-bit encrypted data payload chunk',
+            'Encrypted Data DataArchive',
+            'The AES-GCM 256-bit encrypted data archive chunk',
             {
                 type: 'simple',
                 width: 40,

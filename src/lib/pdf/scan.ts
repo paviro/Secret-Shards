@@ -77,7 +77,7 @@ export async function scanPdfForQrCodes(
             });
 
             const scales = [2, 2.5, 3];
-            const pagePayloads = new Set<string>();
+            const pageDataArchives = new Set<string>();
 
             for (const scale of scales) {
                 if (shouldContinue && !shouldContinue()) {
@@ -100,9 +100,9 @@ export async function scanPdfForQrCodes(
                 const result = await qrWorker.scanImageData(imageData);
                 for (const match of result.matches) {
                     if (!match.data) continue;
-                    if (pagePayloads.has(match.data)) continue;
+                    if (pageDataArchives.has(match.data)) continue;
 
-                    pagePayloads.add(match.data);
+                    pageDataArchives.add(match.data);
                     const pdfMatch: PdfQrMatch = {
                         payload: match.data,
                         page: pageNumber,
@@ -172,15 +172,15 @@ export async function scanImageForQrCodes(file: File): Promise<string[]> {
 
     const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
     const result = await qrWorker.scanImageData(imageData);
-    const uniquePayloads = new Set<string>();
+    const uniqueDataArchives = new Set<string>();
 
     for (const match of result.matches) {
         if (!match.data) continue;
-        if (uniquePayloads.has(match.data)) continue;
-        uniquePayloads.add(match.data);
+        if (uniqueDataArchives.has(match.data)) continue;
+        uniqueDataArchives.add(match.data);
     }
 
     URL.revokeObjectURL(url);
-    return Array.from(uniquePayloads);
+    return Array.from(uniqueDataArchives);
 }
 

@@ -8,8 +8,8 @@ import ScannerControls from '@/features/decrypt/components/QrScanner/components/
 
 interface FullscreenQrScannerProps {
     onScan: (decodedText: string) => Promise<ScanResult> | ScanResult;
-    collectedShares: number;
-    requiredShares: number;
+    collectedKeyShares: number;
+    requiredKeyShares: number;
     collectedData: number;
     totalData: number | null;
     onReset: () => void;
@@ -18,8 +18,8 @@ interface FullscreenQrScannerProps {
 
 export default function FullscreenQrScanner({
     onScan,
-    collectedShares,
-    requiredShares,
+    collectedKeyShares,
+    requiredKeyShares,
     collectedData,
     totalData,
     onReset,
@@ -84,8 +84,8 @@ export default function FullscreenQrScanner({
                     <div className="w-full flex flex-col gap-4 pointer-events-auto">
                         <div className="flex justify-center items-start">
                             <ScannerProgress
-                                collectedShares={collectedShares}
-                                requiredShares={requiredShares}
+                                collectedKeyShares={collectedKeyShares}
+                                requiredKeyShares={requiredKeyShares}
                                 collectedData={collectedData}
                                 totalData={totalData}
                                 className="flex-1"

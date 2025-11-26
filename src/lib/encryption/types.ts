@@ -1,9 +1,9 @@
-import type { Payload } from '@/lib/protocol/payload';
-import type { Algorithm } from '@/lib/protocol/format';
+import type { DataArchive } from '@/lib/protocol/dataArchive';
+import type { Algorithm } from '@/lib/protocol/keyShare';
 
 export interface EncryptJobInput {
-    payload: Payload;
-    shares: number;
+    dataArchive: DataArchive;
+    keyShares: number;
     threshold: number;
     title: string;
     dataFileName: string;
@@ -15,7 +15,7 @@ export interface EncryptJobResult {
     qrImages: { name: string; data: Uint8Array | string }[];
 }
 
-export interface RecoverPayloadInput {
+export interface RecoverDataArchiveInput {
     keyShares: Uint8Array[];
     chunks: Uint8Array[];
     iv: Uint8Array;

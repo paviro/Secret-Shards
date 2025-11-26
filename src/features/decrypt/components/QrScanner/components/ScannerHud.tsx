@@ -1,6 +1,6 @@
 interface ScannerHudProps {
-    collectedShares: number;
-    requiredShares: number;
+    collectedKeyShares: number;
+    requiredKeyShares: number;
     collectedData: number;
     totalData: number | null;
 }
@@ -21,14 +21,14 @@ export function ScannerReticle({ className = 'w-88 h-80' }: ScannerReticleProps)
 }
 
 export function ScannerProgress({
-    collectedShares,
-    requiredShares,
+    collectedKeyShares,
+    requiredKeyShares,
     collectedData,
     totalData,
     className = ""
 }: ScannerHudProps & { className?: string }) {
     // Calculate progress
-    const shareProgress = requiredShares > 0 ? (collectedShares / requiredShares) * 100 : 0;
+    const shareProgress = requiredKeyShares > 0 ? (collectedKeyShares / requiredKeyShares) * 100 : 0;
     const dataProgress = totalData ? (collectedData / totalData) * 100 : 0;
 
     return (
@@ -38,14 +38,14 @@ export function ScannerProgress({
                 <div className="flex justify-between items-end mb-2">
                     <span className="text-xs font-medium text-white uppercase tracking-wider shadow-black drop-shadow-sm">Shares</span>
                     <span className="text-sm font-bold text-white font-mono drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]">
-                        {requiredShares > 0 ? (
+                        {requiredKeyShares > 0 ? (
                             <>
-                                <span className="text-blue-400">{collectedShares}</span>
+                                <span className="text-blue-400">{collectedKeyShares}</span>
                                 <span className="text-slate-400 mx-1">/</span>
-                                <span>{requiredShares}</span>
+                                <span>{requiredKeyShares}</span>
                             </>
                         ) : (
-                            <span className="text-blue-400">{collectedShares}</span>
+                            <span className="text-blue-400">{collectedKeyShares}</span>
                         )}
                     </span>
                 </div>

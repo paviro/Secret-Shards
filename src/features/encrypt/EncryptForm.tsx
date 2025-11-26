@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Payload } from '@/lib/protocol/payload';
+import { DataArchive } from '@/lib/protocol/dataArchive';
 import { createSecretShares } from '@/lib/encryption/core';
 import { generateShareArtifacts } from '@/lib/pdf/artifacts';
 import SecretInput from './components/SecretInput';
@@ -37,7 +37,7 @@ export default function EncryptForm() {
         setIsProcessing(true);
         setResult(null);
         try {
-            let payload: Payload;
+            let dataArchive: DataArchive;
 
             if (files.length > 0 && text) {
                 const fileItems = await Promise.all(files.map(async (f) => ({
@@ -46,7 +46,7 @@ export default function EncryptForm() {
                     content: new Uint8Array(await f.arrayBuffer())
                 })));
 
-                payload = { type: 'mixed', text, files: fileItems };
+                dataArchive = { type: 'mixed', text, files: fileItems };
             } else if (files.length > 0) {
                 const fileItems = await Promise.all(files.map(async (f) => ({
                     name: f.name,
@@ -54,9 +54,9 @@ export default function EncryptForm() {
                     content: new Uint8Array(await f.arrayBuffer())
                 })));
 
-                payload = { type: 'files', files: fileItems };
+                dataArchive = { type: 'files', files: fileItems };
             } else {
-                payload = { type: 'text', content: text };
+                dataArchive = { type: 'text', content: text };
             }
 
             // Force encrypted data output file name to a constant
@@ -64,7 +64,7 @@ export default function EncryptForm() {
 
             // 1. Create Secret Shares (Crypto)
             const secretData = await createSecretShares({
-                payload,
+                dataArchive,
                 shares,
                 threshold,
             });

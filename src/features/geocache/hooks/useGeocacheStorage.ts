@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
-import { ShareBlock } from '@/lib/protocol/format';
-import { Payload } from '@/lib/protocol/payload';
+import { KeyShareBlock } from '@/lib/protocol/keyShare';
+import { DataArchive } from '@/lib/protocol/dataArchive';
 
 const STORAGE_KEY = 'secrets-sharing-geocache-session';
 
 // Serialization types
-type SerializedShareBlock = Omit<ShareBlock, 'iv' | 'keyShare'> & {
+type SerializedKeyShareBlock = Omit<KeyShareBlock, 'iv' | 'keyShare'> & {
     iv: string; // Base64
     keyShare: string; // Base64
 };
@@ -16,18 +16,18 @@ type SerializedFileItem = {
     content: string; // Base64
 };
 
-type SerializedPayload = 
+type SerializedDataArchive = 
     | { type: 'text'; content: string }
     | { type: 'files'; files: SerializedFileItem[] }
     | { type: 'mixed'; text: string; files: SerializedFileItem[] };
 
 interface SerializedSession {
-    shares: SerializedShareBlock[];
+    shares: SerializedKeyShareBlock[];
     dataChunks: Array<[number, string]>; // [index, base64_ciphertext]
     totalChunks: number | null;
     dataId: string | null;
     encryptionInfo: { iv: string; algorithm: number } | null;
-    decryptedPayload: SerializedPayload | null;
+    decryptedDataArchive: SerializedDataArchive | null;
     lastUpdated: number;
 }
 
@@ -52,7 +52,7 @@ function fromBase64(base64: string): Uint8Array<ArrayBuffer> {
 }
 
 // Serialization helpers
-function serializeShare(share: ShareBlock): SerializedShareBlock {
+function serializeShare(share: KeyShareBlock): SerializedKeyShareBlock {
     return {
         ...share,
         iv: toBase64(share.iv),
@@ -60,7 +60,7 @@ function serializeShare(share: ShareBlock): SerializedShareBlock {
     };
 }
 
-function deserializeShare(s: SerializedShareBlock): ShareBlock {
+function deserializeShare(s: SerializedKeyShareBlock): KeyShareBlock {
     return {
         ...s,
         iv: fromBase64(s.iv),
@@ -68,7 +68,7 @@ function deserializeShare(s: SerializedShareBlock): ShareBlock {
     };
 }
 
-function serializePayload(payload: Payload): SerializedPayload {
+function serializeDataArchive(payload: DataArchive): SerializedDataArchive {
     if (payload.type === 'text') return payload;
     
     const serializeFiles = (files: { name: string; type: string; content: Uint8Array }[]) => 
@@ -80,7 +80,7 @@ function serializePayload(payload: Payload): SerializedPayload {
     return { type: 'mixed', text: payload.text, files: serializeFiles(payload.files) };
 }
 
-function deserializePayload(payload: SerializedPayload): Payload {
+function deserializeDataArchive(payload: SerializedDataArchive): DataArchive {
     if (payload.type === 'text') return payload;
 
     const deserializeFiles = (files: SerializedFileItem[]) => 
@@ -93,20 +93,20 @@ function deserializePayload(payload: SerializedPayload): Payload {
 }
 
 export interface GeocacheStorage {
-    shares: ShareBlock[];
+    shares: KeyShareBlock[];
     dataChunks: Map<number, Uint8Array>;
     totalChunks: number | null;
     dataId: string | null;
     encryptionInfo: { iv: Uint8Array; algorithm: number } | null;
-    decryptedPayload: Payload | null;
+    decryptedDataArchive: DataArchive | null;
     
     saveState: (
-        shares: ShareBlock[],
+        shares: KeyShareBlock[],
         dataChunks: Map<number, Uint8Array>,
         totalChunks: number | null,
         dataId: string | null,
         encryptionInfo: { iv: Uint8Array; algorithm: number } | null,
-        decryptedPayload: Payload | null
+        decryptedDataArchive: DataArchive | null
     ) => void;
     
     clearSession: () => void;
@@ -115,12 +115,12 @@ export interface GeocacheStorage {
 
 export function useGeocacheStorage(): GeocacheStorage {
     const [isLoaded, setIsLoaded] = useState(false);
-    const [shares, setShares] = useState<ShareBlock[]>([]);
+    const [shares, setShares] = useState<KeyShareBlock[]>([]);
     const [dataChunks, setDataChunks] = useState<Map<number, Uint8Array>>(new Map());
     const [totalChunks, setTotalChunks] = useState<number | null>(null);
     const [dataId, setDataId] = useState<string | null>(null);
     const [encryptionInfo, setEncryptionInfo] = useState<{ iv: Uint8Array; algorithm: number } | null>(null);
-    const [decryptedPayload, setDecryptedPayload] = useState<Payload | null>(null);
+    const [decryptedDataArchive, setDecryptedDataArchive] = useState<DataArchive | null>(null);
 
     // Load from storage on mount
     useEffect(() => {
@@ -141,8 +141,8 @@ export function useGeocacheStorage(): GeocacheStorage {
                     });
                 }
                 
-                if (session.decryptedPayload) {
-                    setDecryptedPayload(deserializePayload(session.decryptedPayload));
+                if (session.decryptedDataArchive) {
+                    setDecryptedDataArchive(deserializeDataArchive(session.decryptedDataArchive));
                 }
             }
         } catch (e) {
@@ -155,12 +155,12 @@ export function useGeocacheStorage(): GeocacheStorage {
     }, []);
 
     const saveState = useCallback((
-        newShares: ShareBlock[],
+        newShares: KeyShareBlock[],
         newDataChunks: Map<number, Uint8Array>,
         newTotalChunks: number | null,
         newDataId: string | null,
         newEncryptionInfo: { iv: Uint8Array; algorithm: number } | null,
-        newDecryptedPayload: Payload | null
+        newDecryptedDataArchive: DataArchive | null
     ) => {
         // Update local state first
         setShares(newShares);
@@ -168,7 +168,7 @@ export function useGeocacheStorage(): GeocacheStorage {
         setTotalChunks(newTotalChunks);
         setDataId(newDataId);
         setEncryptionInfo(newEncryptionInfo);
-        setDecryptedPayload(newDecryptedPayload);
+        setDecryptedDataArchive(newDecryptedDataArchive);
 
         // Then persist
         try {
@@ -181,7 +181,7 @@ export function useGeocacheStorage(): GeocacheStorage {
                     iv: toBase64(newEncryptionInfo.iv),
                     algorithm: newEncryptionInfo.algorithm
                 } : null,
-                decryptedPayload: newDecryptedPayload ? serializePayload(newDecryptedPayload) : null,
+                decryptedDataArchive: newDecryptedDataArchive ? serializeDataArchive(newDecryptedDataArchive) : null,
                 lastUpdated: Date.now()
             };
             localStorage.setItem(STORAGE_KEY, JSON.stringify(session));
@@ -197,7 +197,7 @@ export function useGeocacheStorage(): GeocacheStorage {
         setTotalChunks(null);
         setDataId(null);
         setEncryptionInfo(null);
-        setDecryptedPayload(null);
+        setDecryptedDataArchive(null);
     }, []);
 
     return {
@@ -206,7 +206,7 @@ export function useGeocacheStorage(): GeocacheStorage {
         totalChunks,
         dataId,
         encryptionInfo,
-        decryptedPayload,
+        decryptedDataArchive,
         saveState,
         clearSession,
         isLoaded

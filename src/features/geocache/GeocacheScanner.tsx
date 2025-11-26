@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { unpackShare, unpackData, identifyBlockType, BlockType } from '@/lib/protocol/format';
+import { BlockType, identifyBlockType } from '@/lib/protocol/shared';
+import { unpackKeyShare } from '@/lib/protocol/keyShare';
+import { unpackEncryptedPayload } from '@/lib/protocol/encryptedPayload';
 import { reconstructSecret } from '@/lib/encryption/core';
 import ResultView from '@/features/decrypt/components/ResultView';
 import FullscreenQrScanner from './components/FullscreenQrScanner';
@@ -19,7 +21,7 @@ export default function GeocacheScanner() {
         totalChunks,
         dataId,
         encryptionInfo,
-        decryptedPayload,
+        decryptedDataArchive,
         saveState,
         clearSession,
         isLoaded
@@ -44,13 +46,13 @@ export default function GeocacheScanner() {
     }, [isLoaded, dataId, shares]);
 
     const sessionHasProgress = shares.length > 0 || dataChunks.size > 0;
-    const shouldAutoResume = sessionHasProgress && !decryptedPayload;
-    const shouldShowDisclaimer = !hasAcceptedDisclaimer && !shouldAutoResume && !decryptedPayload;
-    const isScanningActive = (hasAcceptedDisclaimer || shouldAutoResume) && !decryptedPayload;
-    const shouldRenderScanner = !decryptedPayload;
+    const shouldAutoResume = sessionHasProgress && !decryptedDataArchive;
+    const shouldShowDisclaimer = !hasAcceptedDisclaimer && !shouldAutoResume && !decryptedDataArchive;
+    const isScanningActive = (hasAcceptedDisclaimer || shouldAutoResume) && !decryptedDataArchive;
+    const shouldRenderScanner = !decryptedDataArchive;
 
     useEffect(() => {
-        if (decryptedPayload || shouldShowDisclaimer) {
+        if (decryptedDataArchive || shouldShowDisclaimer) {
             enableBackground();
         } else {
             disableBackground();
@@ -59,15 +61,15 @@ export default function GeocacheScanner() {
         return () => {
             enableBackground();
         };
-    }, [decryptedPayload, shouldShowDisclaimer, enableBackground, disableBackground]);
+    }, [decryptedDataArchive, shouldShowDisclaimer, enableBackground, disableBackground]);
 
     // Process Bytes Logic
     const processBytes = useCallback((bytes: Uint8Array): ScanResult => {
         try {
             const type = identifyBlockType(bytes);
 
-            if (type === BlockType.Share) {
-                const share = unpackShare(bytes);
+            if (type === BlockType.KeyShare) {
+                const share = unpackKeyShare(bytes);
 
                 // Validation checks
                 if (shareIdRef.current && shareIdRef.current !== share.id) {
@@ -92,13 +94,13 @@ export default function GeocacheScanner() {
                     totalChunks,
                     dataId,
                     newEncryptionInfo,
-                    decryptedPayload
+                    decryptedDataArchive
                 );
 
                 return { status: 'success', label: `Share #${share.shareIndex + 1}` };
 
-            } else if (type === BlockType.Data) {
-                const data = unpackData(bytes);
+            } else if (type === BlockType.EncryptedPayload) {
+                const data = unpackEncryptedPayload(bytes);
 
                 // Validation
                 if (dataIdRef.current && dataIdRef.current !== data.id) {
@@ -132,7 +134,7 @@ export default function GeocacheScanner() {
                     newTotalChunks,
                     newDataId,
                     encryptionInfo,
-                    decryptedPayload
+                    decryptedDataArchive
                 );
 
                 return { status: 'success', label: `Data ${data.chunkIndex + 1}/${data.totalChunks}` };
@@ -142,7 +144,7 @@ export default function GeocacheScanner() {
             return { status: 'error', message: 'Invalid format.', label: 'Invalid' };
         }
         return { status: 'error', message: 'Unknown block type.', label: 'Invalid' };
-    }, [shares, dataChunks, totalChunks, dataId, encryptionInfo, decryptedPayload, saveState]);
+    }, [shares, dataChunks, totalChunks, dataId, encryptionInfo, decryptedDataArchive, saveState]);
 
     const handleScan = (text: string): ScanResult => {
         try {
@@ -191,18 +193,18 @@ export default function GeocacheScanner() {
     }, [shares, dataChunks, totalChunks, dataId, encryptionInfo, saveState]);
 
     // Auto-decrypt when ready
-    const requiredShares = shares[0]?.threshold ?? 0;
+    const requiredKeyShares = shares[0]?.threshold ?? 0;
     const isDataReady = totalChunks !== null && dataChunks.size === totalChunks;
-    const isReady = shares.length >= requiredShares && isDataReady && requiredShares > 0 && !!encryptionInfo;
+    const isReady = shares.length >= requiredKeyShares && isDataReady && requiredKeyShares > 0 && !!encryptionInfo;
 
     useEffect(() => {
-        if (isReady && !decryptedPayload) {
+        if (isReady && !decryptedDataArchive) {
             void handleDecrypt();
         }
-    }, [isReady, decryptedPayload, handleDecrypt]);
+    }, [isReady, decryptedDataArchive, handleDecrypt]);
 
     // Calculate progress for HUD
-    const collectedShares = shares.length;
+    const collectedKeyShares = shares.length;
     const collectedData = dataChunks.size;
     const totalData = totalChunks;
 
@@ -227,12 +229,12 @@ export default function GeocacheScanner() {
         }
     };
 
-    if (decryptedPayload) {
+    if (decryptedDataArchive) {
         return (
             <div className="flex items-center justify-center p-4 min-h-screen text-slate-100">
                 <div className="w-full max-w-md">
                     <ResultView
-                        payload={decryptedPayload}
+                        dataArchive={decryptedDataArchive}
                         onReset={handleNewSession}
                         resetLabel="New Session"
                     />
@@ -250,8 +252,8 @@ export default function GeocacheScanner() {
             {shouldRenderScanner && (
                 <FullscreenQrScanner
                     onScan={handleScan}
-                    collectedShares={collectedShares}
-                    requiredShares={requiredShares}
+                    collectedKeyShares={collectedKeyShares}
+                    requiredKeyShares={requiredKeyShares}
                     collectedData={collectedData}
                     totalData={totalData}
                     onReset={handleNewSession}

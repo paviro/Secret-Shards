@@ -94,13 +94,13 @@ export default function ResultView({ result, threshold, totalShares, onReset }: 
                 {result.dataUrl && (
                     <div>
                         {(() => {
-                            const hasDataBlocks = result.qrImages.some(img => img.name.startsWith('encrypted_data/'));
+                            const hasEncryptedPayloadBlocks = result.qrImages.some(img => img.name.startsWith('encrypted_data/'));
                             return (
                                 <>
                                     <h3 className="text-base font-medium text-slate-300 mb-1">
-                                        2. Your Encrypted Data <span className="text-slate-400 font-normal">({hasDataBlocks ? 'optional' : 'required'})</span>
+                                        2. Your Encrypted Data <span className="text-slate-400 font-normal">({hasEncryptedPayloadBlocks ? 'optional' : 'required'})</span>
                                     </h3>
-                                    {hasDataBlocks ? (
+                                    {hasEncryptedPayloadBlocks ? (
                                         <p className="text-sm text-slate-500 mb-3">This is your actual encrypted data — the "locked box" so to speak. Since the data you encrypted is rather small, it's also embedded in the PDFs above, so you don't necessarily need to keep this file.</p>
                                     ) : (
                                         <p className="text-sm text-slate-500 mb-3">This is your actual encrypted data — the "locked box" so to speak. Keep this file secure! You'll need it along with {threshold} pieces of your encryption key to unlock and recover your original data.</p>

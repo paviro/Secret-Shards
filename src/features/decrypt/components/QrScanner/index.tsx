@@ -10,8 +10,8 @@ import { XMarkIcon } from '@heroicons/react/24/outline';
 interface QrScannerProps {
     onScan: (decodedText: string) => Promise<ScanResult> | ScanResult;
     onClose: () => void;
-    collectedShares: number;
-    requiredShares: number;
+    collectedKeyShares: number;
+    requiredKeyShares: number;
     collectedData: number;
     totalData: number | null;
 }
@@ -22,8 +22,8 @@ export type { ScanResult };
 export default function QrScanner({
     onScan,
     onClose,
-    collectedShares,
-    requiredShares,
+    collectedKeyShares,
+    requiredKeyShares,
     collectedData,
     totalData
 }: QrScannerProps) {
@@ -86,8 +86,8 @@ export default function QrScanner({
 
                     {/* Scanner HUD (Progress + Static Overlay) */}
                     <ScannerHud
-                        collectedShares={collectedShares}
-                        requiredShares={requiredShares}
+                        collectedKeyShares={collectedKeyShares}
+                        requiredKeyShares={requiredKeyShares}
                         collectedData={collectedData}
                         totalData={totalData}
                     />

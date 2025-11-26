@@ -1,13 +1,13 @@
 
 export type FileItem = { name: string; type: string; content: Uint8Array };
 
-export type Payload =
+export type DataArchive =
     | { type: 'text'; content: string }
     | { type: 'files'; files: FileItem[] }
     | { type: 'mixed'; text: string; files: FileItem[] };
 
-// --- Payload framing bytes (header) ---
-const PAYLOAD_VERSION = 0x01; // Increments whenever the binary layout changes
+// --- Data archive framing bytes (header) ---
+export const DATA_ARCHIVE_VERSION = 0x01; // Increments whenever the binary layout changes
 const COMPRESSION_NONE = 0x00;
 const COMPRESSION_GZIP = 0x01;
 const HEADER_SIZE = 1 /* version */ + 1 /* compression id */;
@@ -139,7 +139,7 @@ function readFiles(buffer: Uint8Array, offset: number, count: number): { files: 
     return { files, newOffset: currentOffset };
 }
 
-function serializePayload(payload: Payload): Uint8Array {
+function serializeDataArchive(payload: DataArchive): Uint8Array {
     if (payload.type === 'text') {
         const textBytes = encodeString(payload.content);
         const buffer = new Uint8Array(1 + textBytes.length);
@@ -180,7 +180,7 @@ function serializePayload(payload: Payload): Uint8Array {
     }
 }
 
-function deserializePayload(buffer: Uint8Array): Payload {
+function deserializeDataArchive(buffer: Uint8Array): DataArchive {
     const type = buffer[0];
 
     if (type === TYPE_TEXT) {
@@ -208,8 +208,8 @@ function deserializePayload(buffer: Uint8Array): Payload {
     }
 }
 
-export async function packPayload(payload: Payload): Promise<Uint8Array> {
-    const rawData = serializePayload(payload);
+export async function packDataArchive(payload: DataArchive): Promise<Uint8Array> {
+    const rawData = serializeDataArchive(payload);
 
     // Try compressing
     let body: Uint8Array;
@@ -232,7 +232,7 @@ export async function packPayload(payload: Payload): Promise<Uint8Array> {
     const result = new Uint8Array(HEADER_SIZE + body.length);
 
     let offset = 0;
-    result[offset++] = PAYLOAD_VERSION;
+    result[offset++] = DATA_ARCHIVE_VERSION;
     result[offset++] = compressionAlgorithm;
 
     result.set(body, offset);
@@ -240,19 +240,19 @@ export async function packPayload(payload: Payload): Promise<Uint8Array> {
     return result;
 }
 
-export async function unpackPayload(buffer: Uint8Array): Promise<Payload> {
+export async function unpackDataArchive(buffer: Uint8Array): Promise<DataArchive> {
     if (buffer.length < HEADER_SIZE) {
-        throw new Error('Payload buffer too small to contain header');
+        throw new Error('Data archive buffer too small to contain header');
     }
 
     let offset = 0;
     const version = buffer[offset++];
-    if (version !== PAYLOAD_VERSION) {
-        throw new Error(`Unsupported payload version: ${version}`);
+    if (version !== DATA_ARCHIVE_VERSION) {
+        throw new Error(`Unsupported data archive version: ${version}`);
     }
 
     const compressionAlgorithm = buffer[offset++];
-    
+
     const body = buffer.slice(offset);
 
     let rawData: Uint8Array;
@@ -265,5 +265,5 @@ export async function unpackPayload(buffer: Uint8Array): Promise<Payload> {
         throw new Error(`Unsupported compression algorithm: 0x${compressionAlgorithm.toString(16).padStart(2, '0')}`);
     }
 
-    return deserializePayload(rawData);
+    return deserializeDataArchive(rawData);
 }

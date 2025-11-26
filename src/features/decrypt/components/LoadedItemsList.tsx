@@ -1,16 +1,16 @@
-import { ShareBlock } from '@/lib/protocol/format';
+import { KeyShareBlock } from '@/lib/protocol/keyShare';
 import { TrashIcon } from '@heroicons/react/24/outline';
 
 interface LoadedItemsListProps {
-    shares: ShareBlock[];
+    keyShares: KeyShareBlock[];
     dataChunks: Map<number, Uint8Array>;
     totalChunks: number | null;
     dataId: string | null;
-    onRemoveShare: (share: ShareBlock) => void;
+    onRemoveKeyShare: (share: KeyShareBlock) => void;
     onClearData: () => void;
 }
 
-export default function LoadedItemsList({ shares, dataChunks, totalChunks, dataId, onRemoveShare, onClearData }: LoadedItemsListProps) {
+export default function LoadedItemsList({ keyShares, dataChunks, totalChunks, dataId, onRemoveKeyShare, onClearData }: LoadedItemsListProps) {
     return (
         <div className="bg-slate-900/30 rounded-xl border border-slate-800 p-6">
             <h4 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-4">Loaded Items</h4>
@@ -29,18 +29,18 @@ export default function LoadedItemsList({ shares, dataChunks, totalChunks, dataI
                         </button>
                     </div>
                 )}
-                {shares.map((share) => (
+                {keyShares.map((share) => (
                     <div key={`${share.id}-${share.shareIndex}`} className="flex justify-between items-center p-3 bg-indigo-500/10 border border-indigo-500/20 rounded-lg">
                         <div>
                             <p className="text-xs font-bold text-indigo-400">Share #{share.shareIndex}</p>
                             <p className="text-[10px] font-mono text-indigo-400/60">{share.id.substring(0, 8)}...</p>
                         </div>
-                        <button onClick={() => onRemoveShare(share)} className="p-2 text-slate-500 hover:text-red-400 hover:bg-slate-800/50 rounded-lg transition-all">
+                        <button onClick={() => onRemoveKeyShare(share)} className="p-2 text-slate-500 hover:text-red-400 hover:bg-slate-800/50 rounded-lg transition-all">
                             <TrashIcon className="w-4 h-4" stroke="currentColor" strokeWidth={2} />
                         </button>
                     </div>
                 ))}
-                {totalChunks === null && shares.length === 0 && (
+                {totalChunks === null && keyShares.length === 0 && (
                     <p className="text-sm text-slate-600 text-center py-4">No items loaded yet</p>
                 )}
             </div>

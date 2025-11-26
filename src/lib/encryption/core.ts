@@ -1,16 +1,16 @@
 import { encrypt, split, combine, decrypt } from '@/lib/encryption/crypto';
-import { packPayload, unpackPayload, type Payload } from '@/lib/protocol/payload';
-import { Algorithm } from '@/lib/protocol/format';
-import type { SecretSharesData, RecoverPayloadInput } from './types';
+import { packDataArchive, unpackDataArchive, type DataArchive } from '@/lib/protocol/dataArchive';
+import { Algorithm } from '@/lib/protocol/keyShare';
+import type { SecretSharesData, RecoverDataArchiveInput } from './types';
 
 export interface CreateSecretSharesOptions {
-    payload: Payload;
+    dataArchive: DataArchive;
     shares: number;
     threshold: number;
 }
 
 export async function createSecretShares(options: CreateSecretSharesOptions): Promise<SecretSharesData> {
-    const dataToEncrypt = await packPayload(options.payload);
+    const dataToEncrypt = await packDataArchive(options.dataArchive);
     const { key, ciphertext, iv } = await encrypt(dataToEncrypt as Uint8Array<ArrayBuffer>);
     const keyShares = await split(key, options.shares, options.threshold);
     const id = crypto.randomUUID();
@@ -23,7 +23,7 @@ export async function createSecretShares(options: CreateSecretSharesOptions): Pr
     };
 }
 
-export async function reconstructSecret(input: RecoverPayloadInput): Promise<Payload> {
+export async function reconstructSecret(input: RecoverDataArchiveInput): Promise<DataArchive> {
     if (input.algorithm !== Algorithm.AES_GCM_256) {
         throw new Error(`Unsupported algorithm: ${input.algorithm}`);
     }
@@ -39,6 +39,6 @@ export async function reconstructSecret(input: RecoverPayloadInput): Promise<Pay
     }
 
     const decrypted = await decrypt(recoveredKey, fullCiphertext as Uint8Array<ArrayBuffer>, input.iv as Uint8Array<ArrayBuffer>);
-    return unpackPayload(decrypted);
+    return unpackDataArchive(decrypted);
 }
 
