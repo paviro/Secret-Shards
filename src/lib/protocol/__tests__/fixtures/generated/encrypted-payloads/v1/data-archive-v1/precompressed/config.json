@@ -1,0 +1,8 @@
+{
+  "algorithm": "AES_GCM_256",
+  "plaintextRef": "precompressed.bin",
+  "archiveType": "files",
+  "compressionUsed": false,
+  "encryptedChunkVersion": 1,
+  "dataArchiveVersion": 1
+}

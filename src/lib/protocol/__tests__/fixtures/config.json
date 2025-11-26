@@ -1,0 +1,10 @@
+{
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "algorithms": {
+        "AES_GCM_256": {
+            "algorithmId": 1,
+            "key": "aaEDJI/SCezztldEF2y7aCI3opp7+RcDbRRvHYgtHV0=",
+            "iv": "Up5E1JNguF2PUTrw"
+        }
+    }
+}

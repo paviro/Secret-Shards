@@ -1,8 +1,8 @@
-import { packPayload, unpackPayload } from '@/lib/protocol/payload';
+import { packDataArchive, unpackDataArchive } from '@/lib/protocol/dataArchive';
 import {
-    createTextPayload,
-    createFilesPayload,
-    createMixedPayload,
+    createTextDataArchive,
+    createFilesDataArchive,
+    createMixedDataArchive,
     createTestFile,
     arraysEqual,
     randomBytes,
@@ -11,10 +11,10 @@ import {
 describe('protocol payload', () => {
     describe('Text payload', () => {
         it('should pack and unpack a simple text payload', async () => {
-            const original = createTextPayload('Hello, World!');
+            const original = createTextDataArchive('Hello, World!');
 
-            const packed = await packPayload(original);
-            const unpacked = await unpackPayload(packed);
+            const packed = await packDataArchive(original);
+            const unpacked = await unpackDataArchive(packed);
 
             expect(unpacked.type).toBe('text');
             if (unpacked.type === 'text') {
@@ -23,10 +23,10 @@ describe('protocol payload', () => {
         });
 
         it('should handle empty text', async () => {
-            const original = createTextPayload('');
+            const original = createTextDataArchive('');
 
-            const packed = await packPayload(original);
-            const unpacked = await unpackPayload(packed);
+            const packed = await packDataArchive(original);
+            const unpacked = await unpackDataArchive(packed);
 
             expect(unpacked.type).toBe('text');
             if (unpacked.type === 'text') {
@@ -35,10 +35,10 @@ describe('protocol payload', () => {
         });
 
         it('should handle unicode text', async () => {
-            const original = createTextPayload('Hello 世界 🌍 مرحبا');
+            const original = createTextDataArchive('Hello 世界 🌍 مرحبا');
 
-            const packed = await packPayload(original);
-            const unpacked = await unpackPayload(packed);
+            const packed = await packDataArchive(original);
+            const unpacked = await unpackDataArchive(packed);
 
             expect(unpacked.type).toBe('text');
             if (unpacked.type === 'text') {
@@ -49,10 +49,10 @@ describe('protocol payload', () => {
 
         it('should handle special characters', async () => {
             const specialText = 'Line 1\nLine 2\tTabbed\r\nWindows\0Null';
-            const original = createTextPayload(specialText);
+            const original = createTextDataArchive(specialText);
 
-            const packed = await packPayload(original);
-            const unpacked = await unpackPayload(packed);
+            const packed = await packDataArchive(original);
+            const unpacked = await unpackDataArchive(packed);
 
             expect(unpacked.type).toBe('text');
             if (unpacked.type === 'text') {
@@ -63,12 +63,12 @@ describe('protocol payload', () => {
 
     describe('Files payload', () => {
         it('should pack and unpack a single file', async () => {
-            const original = createFilesPayload([
+            const original = createFilesDataArchive([
                 createTestFile('test.txt', 'File content'),
             ]);
 
-            const packed = await packPayload(original);
-            const unpacked = await unpackPayload(packed);
+            const packed = await packDataArchive(original);
+            const unpacked = await unpackDataArchive(packed);
 
             expect(unpacked.type).toBe('files');
             if (unpacked.type === 'files') {
@@ -82,14 +82,14 @@ describe('protocol payload', () => {
         });
 
         it('should pack and unpack multiple files', async () => {
-            const original = createFilesPayload([
+            const original = createFilesDataArchive([
                 createTestFile('file1.txt', 'Content 1'),
                 createTestFile('file2.txt', 'Content 2'),
                 createTestFile('file3.txt', 'Content 3'),
             ]);
 
-            const packed = await packPayload(original);
-            const unpacked = await unpackPayload(packed);
+            const packed = await packDataArchive(original);
+            const unpacked = await unpackDataArchive(packed);
 
             expect(unpacked.type).toBe('files');
             if (unpacked.type === 'files') {
@@ -107,7 +107,7 @@ describe('protocol payload', () => {
             const binaryContent = randomBytes(256);
             const encoder = new TextEncoder();
 
-            const original = createFilesPayload([
+            const original = createFilesDataArchive([
                 {
                     name: 'binary.dat',
                     type: 'application/octet-stream',
@@ -115,8 +115,8 @@ describe('protocol payload', () => {
                 },
             ]);
 
-            const packed = await packPayload(original);
-            const unpacked = await unpackPayload(packed);
+            const packed = await packDataArchive(original);
+            const unpacked = await unpackDataArchive(packed);
 
             expect(unpacked.type).toBe('files');
             if (unpacked.type === 'files') {
@@ -128,12 +128,12 @@ describe('protocol payload', () => {
 
 
         it('should handle empty file', async () => {
-            const original = createFilesPayload([
+            const original = createFilesDataArchive([
                 createTestFile('empty.txt', ''),
             ]);
 
-            const packed = await packPayload(original);
-            const unpacked = await unpackPayload(packed);
+            const packed = await packDataArchive(original);
+            const unpacked = await unpackDataArchive(packed);
 
             expect(unpacked.type).toBe('files');
             if (unpacked.type === 'files') {
@@ -142,14 +142,14 @@ describe('protocol payload', () => {
         });
 
         it('should handle unicode filenames', async () => {
-            const original = createFilesPayload([
+            const original = createFilesDataArchive([
                 createTestFile('文件.txt', 'Content'),
                 createTestFile('файл.txt', 'Content'),
                 createTestFile('🎉.txt', 'Content'),
             ]);
 
-            const packed = await packPayload(original);
-            const unpacked = await unpackPayload(packed);
+            const packed = await packDataArchive(original);
+            const unpacked = await unpackDataArchive(packed);
 
             expect(unpacked.type).toBe('files');
             if (unpacked.type === 'files') {
@@ -162,7 +162,7 @@ describe('protocol payload', () => {
 
     describe('Mixed payload', () => {
         it('should pack and unpack mixed payload with text and files', async () => {
-            const original = createMixedPayload(
+            const original = createMixedDataArchive(
                 'This is the text part',
                 [
                     createTestFile('file1.txt', 'File 1 content'),
@@ -170,8 +170,8 @@ describe('protocol payload', () => {
                 ]
             );
 
-            const packed = await packPayload(original);
-            const unpacked = await unpackPayload(packed);
+            const packed = await packDataArchive(original);
+            const unpacked = await unpackDataArchive(packed);
 
             expect(unpacked.type).toBe('mixed');
             if (unpacked.type === 'mixed') {
@@ -187,13 +187,13 @@ describe('protocol payload', () => {
         });
 
         it('should handle mixed payload with empty text', async () => {
-            const original = createMixedPayload(
+            const original = createMixedDataArchive(
                 '',
                 [createTestFile('file.txt', 'Content')]
             );
 
-            const packed = await packPayload(original);
-            const unpacked = await unpackPayload(packed);
+            const packed = await packDataArchive(original);
+            const unpacked = await unpackDataArchive(packed);
 
             expect(unpacked.type).toBe('mixed');
             if (unpacked.type === 'mixed') {
@@ -203,10 +203,10 @@ describe('protocol payload', () => {
         });
 
         it('should handle mixed payload with no files', async () => {
-            const original = createMixedPayload('Just text', []);
+            const original = createMixedDataArchive('Just text', []);
 
-            const packed = await packPayload(original);
-            const unpacked = await unpackPayload(packed);
+            const packed = await packDataArchive(original);
+            const unpacked = await unpackDataArchive(packed);
 
             expect(unpacked.type).toBe('mixed');
             if (unpacked.type === 'mixed') {
@@ -219,9 +219,9 @@ describe('protocol payload', () => {
     describe('Compression', () => {
         it('should compress large repetitive text', async () => {
             const repetitiveText = 'A'.repeat(10 * 1024 * 1024); // 10MB
-            const original = createTextPayload(repetitiveText);
+            const original = createTextDataArchive(repetitiveText);
 
-            const packed = await packPayload(original);
+            const packed = await packDataArchive(original);
 
             // The packed size should be significantly smaller than the original
             // Original is 10MB, compressed should be much less with repetitive data
@@ -232,10 +232,10 @@ describe('protocol payload', () => {
         });
 
         it('should decompress data correctly after compression', async () => {
-            const largePayload = createTextPayload('Test data '.repeat(1000));
+            const largeDataArchive = createTextDataArchive('Test data '.repeat(1000));
 
-            const packed = await packPayload(largePayload);
-            const unpacked = await unpackPayload(packed);
+            const packed = await packDataArchive(largeDataArchive);
+            const unpacked = await unpackDataArchive(packed);
 
             expect(unpacked.type).toBe('text');
             if (unpacked.type === 'text') {
@@ -247,25 +247,25 @@ describe('protocol payload', () => {
     describe('Serialization format integrity', () => {
         it('should maintain data integrity through pack/unpack cycle', async () => {
             const payloads = [
-                createTextPayload('Simple text'),
-                createFilesPayload([createTestFile('test.txt', 'Test')]),
-                createMixedPayload('Mixed', [createTestFile('file.txt', 'File')]),
+                createTextDataArchive('Simple text'),
+                createFilesDataArchive([createTestFile('test.txt', 'Test')]),
+                createMixedDataArchive('Mixed', [createTestFile('file.txt', 'File')]),
             ];
 
             for (const original of payloads) {
-                const packed = await packPayload(original);
-                const unpacked = await unpackPayload(packed);
+                const packed = await packDataArchive(original);
+                const unpacked = await unpackDataArchive(packed);
 
                 expect(unpacked).toEqual(original);
             }
         });
 
         it('should handle multiple pack/unpack cycles', async () => {
-            let payload = createTextPayload('Cycle test');
+            let payload = createTextDataArchive('Cycle test');
 
             for (let i = 0; i < 5; i++) {
-                const packed = await packPayload(payload);
-                payload = await unpackPayload(packed);
+                const packed = await packDataArchive(payload);
+                payload = await unpackDataArchive(packed);
             }
 
             expect(payload.type).toBe('text');
@@ -282,10 +282,10 @@ describe('protocol payload', () => {
                 createTestFile(`file${i}.txt`, 'X'.repeat(10 * 1024 * 1024))
             );
 
-            const original = createFilesPayload(largeFiles);
+            const original = createFilesDataArchive(largeFiles);
 
-            const packed = await packPayload(original);
-            const unpacked = await unpackPayload(packed);
+            const packed = await packDataArchive(original);
+            const unpacked = await unpackDataArchive(packed);
 
             expect(unpacked.type).toBe('files');
             if (unpacked.type === 'files') {
@@ -295,7 +295,7 @@ describe('protocol payload', () => {
 
         it('should handle different MIME types', async () => {
             const encoder = new TextEncoder();
-            const original = createFilesPayload([
+            const original = createFilesDataArchive([
                 {
                     name: 'data.json',
                     type: 'application/json',
@@ -313,8 +313,8 @@ describe('protocol payload', () => {
                 },
             ]);
 
-            const packed = await packPayload(original);
-            const unpacked = await unpackPayload(packed);
+            const packed = await packDataArchive(original);
+            const unpacked = await unpackDataArchive(packed);
 
             expect(unpacked.type).toBe('files');
             if (unpacked.type === 'files') {

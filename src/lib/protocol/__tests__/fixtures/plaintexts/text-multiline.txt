@@ -1,0 +1,32 @@
+The quick brown fox jumps over the lazy dog.
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+🔒 Secret Sharing Test Document 🔑
+This file contains diverse text for backward compatibility testing.
+
+Unicode Characters:
+• Accents: café, résumé, naïve, Zürich, São Paulo
+• Symbols: ±∞≈≠≤≥∑∏∫√∂∇
+• Currency: $€£¥₹₽¢
+• Arrows: →←↑↓↔↕⇒⇐⇔
+• Emojis: 🔒🔑💎🎯🚀📦✨🌟💫⭐🎁🏆🌈
+
+Multilingual:
+• English: Hello World
+• Spanish: Hola Mundo
+• French: Bonjour le Monde
+• German: Hallo Welt
+• Russian: Привет мир
+• Japanese: こんにちは世界
+• Chinese: 你好世界
+• Arabic: مرحبا بالعالم
+
+Special Characters & Formatting:
+Line 1: Standard ASCII text
+Line 2: Special chars @#$%^&*()_+-=[]{}|;':",.<>?/~`
+Line 3: Numbers 0123456789
+Line 4: UPPERCASE and lowercase
+Line 5: CamelCase, snake_case, kebab-case
+
+End of test document.

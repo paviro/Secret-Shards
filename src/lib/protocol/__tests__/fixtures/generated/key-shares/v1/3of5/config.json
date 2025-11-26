@@ -1,0 +1,7 @@
+{
+  "algorithm": "AES_GCM_256",
+  "threshold": 3,
+  "totalShares": 5,
+  "description": "3-of-5 sharing (good for testing combinations)",
+  "keyShareVersion": 1
+}

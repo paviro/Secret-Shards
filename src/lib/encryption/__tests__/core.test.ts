@@ -1,15 +1,15 @@
 import { createSecretShares, reconstructSecret } from '@/lib/encryption/core';
-import { Algorithm } from '@/lib/protocol/format';
-import { arraysEqual, createTextPayload, createFilesPayload, createTestFile } from '@/lib/__tests__/testUtils';
-import type { RecoverPayloadInput } from '@/lib/encryption/types';
+import { Algorithm } from '@/lib/protocol/keyShare';
+import { arraysEqual, createTextDataArchive, createFilesDataArchive, createTestFile } from '@/lib/__tests__/testUtils';
+import type { RecoverDataArchiveInput } from '@/lib/encryption/types';
 
 describe('encryption core', () => {
     describe('createSecretShares', () => {
-        it('should create secret shares for text payload', async () => {
-            const payload = createTextPayload('Hello, World!');
+        it('should create secret shares for text dataArchive', async () => {
+            const dataArchive = createTextDataArchive('Hello, World!');
 
             const result = await createSecretShares({
-                payload,
+                dataArchive,
                 shares: 3,
                 threshold: 2,
             });
@@ -21,14 +21,14 @@ describe('encryption core', () => {
             expect(result.iv.length).toBe(12); // AES-GCM IV length
         });
 
-        it('should create secret shares for files payload', async () => {
-            const payload = createFilesPayload([
+        it('should create secret shares for files dataArchive', async () => {
+            const dataArchive = createFilesDataArchive([
                 createTestFile('test.txt', 'Test file content'),
                 createTestFile('data.json', '{"key": "value"}'),
             ]);
 
             const result = await createSecretShares({
-                payload,
+                dataArchive,
                 shares: 5,
                 threshold: 3,
             });
@@ -37,11 +37,11 @@ describe('encryption core', () => {
             expect(result.ciphertext.length).toBeGreaterThan(0);
         });
 
-        it('should generate different ciphertext for same payload', async () => {
-            const payload = createTextPayload('Same content');
+        it('should generate different ciphertext for same dataArchive', async () => {
+            const dataArchive = createTextDataArchive('Same content');
 
-            const result1 = await createSecretShares({ payload, shares: 2, threshold: 2 });
-            const result2 = await createSecretShares({ payload, shares: 2, threshold: 2 });
+            const result1 = await createSecretShares({ dataArchive, shares: 2, threshold: 2 });
+            const result2 = await createSecretShares({ dataArchive, shares: 2, threshold: 2 });
 
             // Different IVs should result in different ciphertexts
             expect(arraysEqual(result1.ciphertext, result2.ciphertext)).toBe(false);
@@ -50,16 +50,16 @@ describe('encryption core', () => {
     });
 
     describe('reconstructSecret', () => {
-        it('should reconstruct text payload from shares', async () => {
-            const originalPayload = createTextPayload('Secret message');
+        it('should reconstruct text dataArchive from shares', async () => {
+            const originalDataArchive = createTextDataArchive('Secret message');
 
             const { keyShares, ciphertext, iv, id } = await createSecretShares({
-                payload: originalPayload,
+                dataArchive: originalDataArchive,
                 shares: 3,
                 threshold: 2,
             });
 
-            const input: RecoverPayloadInput = {
+            const input: RecoverDataArchiveInput = {
                 algorithm: Algorithm.AES_GCM_256,
                 keyShares: [keyShares[0], keyShares[1]],
                 chunks: [ciphertext],
@@ -74,19 +74,19 @@ describe('encryption core', () => {
             }
         });
 
-        it('should reconstruct files payload from shares', async () => {
-            const originalPayload = createFilesPayload([
+        it('should reconstruct files dataArchive from shares', async () => {
+            const originalDataArchive = createFilesDataArchive([
                 createTestFile('file1.txt', 'Content 1'),
                 createTestFile('file2.txt', 'Content 2'),
             ]);
 
             const { keyShares, ciphertext, iv } = await createSecretShares({
-                payload: originalPayload,
+                dataArchive: originalDataArchive,
                 shares: 4,
                 threshold: 2,
             });
 
-            const input: RecoverPayloadInput = {
+            const input: RecoverDataArchiveInput = {
                 algorithm: Algorithm.AES_GCM_256,
                 keyShares: [keyShares[2], keyShares[3]], // Use different shares
                 chunks: [ciphertext],
@@ -108,10 +108,10 @@ describe('encryption core', () => {
         });
 
         it('should work with any threshold combination of shares', async () => {
-            const originalPayload = createTextPayload('Test with combinations');
+            const originalDataArchive = createTextDataArchive('Test with combinations');
 
             const { keyShares, ciphertext, iv } = await createSecretShares({
-                payload: originalPayload,
+                dataArchive: originalDataArchive,
                 shares: 5,
                 threshold: 3,
             });
@@ -124,7 +124,7 @@ describe('encryption core', () => {
             ];
 
             for (const combo of combinations) {
-                const input: RecoverPayloadInput = {
+                const input: RecoverDataArchiveInput = {
                     algorithm: Algorithm.AES_GCM_256,
                     keyShares: combo,
                     chunks: [ciphertext],
@@ -140,10 +140,10 @@ describe('encryption core', () => {
         });
 
         it('should handle multiple ciphertext chunks', async () => {
-            const originalPayload = createTextPayload('Multi-chunk test');
+            const originalDataArchive = createTextDataArchive('Multi-chunk test');
 
             const { keyShares, ciphertext, iv } = await createSecretShares({
-                payload: originalPayload,
+                dataArchive: originalDataArchive,
                 shares: 2,
                 threshold: 2,
             });
@@ -152,7 +152,7 @@ describe('encryption core', () => {
             const chunk1 = ciphertext.slice(0, Math.floor(ciphertext.length / 2));
             const chunk2 = ciphertext.slice(Math.floor(ciphertext.length / 2));
 
-            const input: RecoverPayloadInput = {
+            const input: RecoverDataArchiveInput = {
                 algorithm: Algorithm.AES_GCM_256,
                 keyShares: keyShares,
                 chunks: [chunk1, chunk2],
@@ -168,7 +168,7 @@ describe('encryption core', () => {
         });
 
         it('should throw error for unsupported algorithm', async () => {
-            const input: RecoverPayloadInput = {
+            const input: RecoverDataArchiveInput = {
                 algorithm: 99 as Algorithm, // Invalid algorithm
                 keyShares: [],
                 chunks: [new Uint8Array()],
@@ -181,17 +181,17 @@ describe('encryption core', () => {
 
     describe('end-to-end encryption flow', () => {
         it('should complete full encrypt-decrypt cycle', async () => {
-            const originalPayload = createTextPayload('Complete test');
+            const originalDataArchive = createTextDataArchive('Complete test');
 
             // Encrypt
             const encrypted = await createSecretShares({
-                payload: originalPayload,
+                dataArchive: originalDataArchive,
                 shares: 3,
                 threshold: 2,
             });
 
             // Decrypt
-            const input: RecoverPayloadInput = {
+            const input: RecoverDataArchiveInput = {
                 algorithm: Algorithm.AES_GCM_256,
                 keyShares: [encrypted.keyShares[0], encrypted.keyShares[2]],
                 chunks: [encrypted.ciphertext],
@@ -201,7 +201,7 @@ describe('encryption core', () => {
             const recovered = await reconstructSecret(input);
 
             // Verify
-            expect(recovered).toEqual(originalPayload);
+            expect(recovered).toEqual(originalDataArchive);
         });
     });
 });

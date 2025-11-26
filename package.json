@@ -14,6 +14,7 @@
     "lint": "eslint",
     "test": "jest",
     "test:watch": "jest --watch",
+    "generate-test-fixtures": "npx tsx src/lib/protocol/__tests__/fixtures/generate-test-fixtures.ts",
     "postinstall": "npm run copy-wasm && node scripts/download-fonts.js"
   },
   "dependencies": {

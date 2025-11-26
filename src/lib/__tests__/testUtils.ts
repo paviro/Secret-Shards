@@ -1,4 +1,4 @@
-import type { FileItem, Payload } from '@/lib/protocol/payload';
+import type { FileItem, DataArchive } from '@/lib/protocol/dataArchive';
 
 /**
  * Test utilities for generating mock data and comparing Uint8Arrays
@@ -30,7 +30,7 @@ export function createTestFile(name: string, content: string): FileItem {
 /**
  * Create a test text payload
  */
-export function createTextPayload(text: string): Payload {
+export function createTextDataArchive(text: string): DataArchive {
     return {
         type: 'text',
         content: text,
@@ -40,7 +40,7 @@ export function createTextPayload(text: string): Payload {
 /**
  * Create a test files payload
  */
-export function createFilesPayload(files: FileItem[]): Payload {
+export function createFilesDataArchive(files: FileItem[]): DataArchive {
     return {
         type: 'files',
         files,
@@ -50,7 +50,7 @@ export function createFilesPayload(files: FileItem[]): Payload {
 /**
  * Create a test mixed payload
  */
-export function createMixedPayload(text: string, files: FileItem[]): Payload {
+export function createMixedDataArchive(text: string, files: FileItem[]): DataArchive {
     return {
         type: 'mixed',
         text,

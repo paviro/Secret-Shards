@@ -1,0 +1,11 @@
+{
+  "algorithm": "AES_GCM_256",
+  "plaintextRef": [
+    "text-multiline.txt",
+    "precompressed.bin"
+  ],
+  "archiveType": "files",
+  "compressionUsed": true,
+  "encryptedChunkVersion": 1,
+  "dataArchiveVersion": 1
+}

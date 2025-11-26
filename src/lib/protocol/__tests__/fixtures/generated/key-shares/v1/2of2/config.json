@@ -1,0 +1,7 @@
+{
+  "algorithm": "AES_GCM_256",
+  "threshold": 2,
+  "totalShares": 2,
+  "description": "2-of-2 sharing (all shares required)",
+  "keyShareVersion": 1
+}
