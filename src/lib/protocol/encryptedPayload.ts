@@ -3,7 +3,9 @@ import { BlockType, MAGIC_BYTES, MAGIC_LENGTH, parseUuid, formatUuid, registerBl
 export const ENCRYPTED_PAYLOAD_VERSION = 0x01;
 registerBlockVersion(BlockType.EncryptedPayload, ENCRYPTED_PAYLOAD_VERSION);
 
-export const MAX_DATA_PAGES = 9;
+// totalChunks and chunkIndex are stored in a single byte when packed,
+// so enforce an upper bound to avoid overflow.
+export const MAX_ENCRYPTED_PAYLOAD_CHUNKS = 255;
 
 export interface EncryptedPayloadBlock {
     version: number;
@@ -70,13 +72,16 @@ export function unpackEncryptedPayload(buffer: Uint8Array): EncryptedPayloadBloc
 export function splitEncryptedPayloads(
     id: string,
     ciphertext: Uint8Array,
-    maxChunkSize: number
+    maxChunkSize: number,
+    maxChunks: number = MAX_ENCRYPTED_PAYLOAD_CHUNKS
 ): Uint8Array[] {
     const chunks: Uint8Array[] = [];
     const totalChunks = Math.ceil(ciphertext.length / maxChunkSize);
 
-    if (totalChunks > MAX_DATA_PAGES) {
-        throw new Error(`Data too large: requires ${totalChunks} pages, max allowed is ${MAX_DATA_PAGES}`);
+    if (totalChunks > maxChunks) {
+        // Signal that the payload cannot be embedded within the provided chunk budget.
+        // Callers can fall back to distributing only the encrypted file download.
+        return [];
     }
 
     for (let i = 0; i < totalChunks; i++) {

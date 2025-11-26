@@ -14,6 +14,7 @@ export interface GenerateArtifactsOptions {
     threshold: number;
     title: string;
     dataFileName: string;
+    maxPages: number;
 }
 
 export async function generateShareArtifacts(
@@ -22,9 +23,19 @@ export async function generateShareArtifacts(
 ): Promise<EncryptJobResult> {
     const { keyShares, ciphertext, iv, id } = secretData;
 
+    // Calculate max data pages based on maxPages (1 share page + N data pages)
+    const maxDataPages = Math.max(0, options.maxPages - 1);
+    const maxDataCapacity = maxDataPages * MAX_CHUNK_PAYLOAD;
+
     let dataBlocks: Uint8Array[] = [];
     try {
-        dataBlocks = splitEncryptedPayloads(id, ciphertext, MAX_CHUNK_PAYLOAD);
+        // Only embed if data fits within the max pages limit
+        if (ciphertext.byteLength <= maxDataCapacity) {
+            dataBlocks = splitEncryptedPayloads(id, ciphertext, MAX_CHUNK_PAYLOAD, maxDataPages);
+        } else {
+            console.warn(`Data size (${ciphertext.byteLength} bytes) exceeds max capacity (${maxDataCapacity} bytes for ${maxDataPages} pages), skipping embedded ciphertext.`);
+            dataBlocks = [];
+        }
     } catch (err) {
         console.warn('Data too large for QR splitting, skipping embedded ciphertext.', err);
         dataBlocks = [];

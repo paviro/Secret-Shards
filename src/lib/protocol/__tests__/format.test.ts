@@ -10,7 +10,6 @@ import {
     unpackEncryptedPayload,
     splitEncryptedPayloads,
     ENCRYPTED_PAYLOAD_VERSION,
-    MAX_DATA_PAGES,
 } from '@/lib/protocol/encryptedPayload';
 import { arraysEqual, randomBytes, toHex } from '@/lib/__tests__/testUtils';
 
@@ -221,24 +220,24 @@ describe('protocol format', () => {
             expect(lastChunk.ciphertext.length).toBe(50); // 250 - (100 * 2) = 50
         });
 
-        it('should throw error when exceeding max data pages', () => {
+        it('should skip chunk creation when exceeding provided max chunk limit', () => {
             const id = crypto.randomUUID();
             const ciphertext = randomBytes(1000);
-            const maxChunkSize = 90; // Would require 12 chunks, exceeds MAX_DATA_PAGES (9)
+            const maxChunkSize = 90; // Would require 12 chunks, exceeds the provided limit of 9
 
-            expect(() => splitEncryptedPayloads(id, ciphertext, maxChunkSize)).toThrow(
-                `Data too large: requires ${Math.ceil(1000 / 90)} pages, max allowed is ${MAX_DATA_PAGES}`
-            );
+            const chunks = splitEncryptedPayloads(id, ciphertext, maxChunkSize, 9);
+
+            expect(chunks.length).toBe(0);
         });
 
-        it('should respect MAX_DATA_PAGES limit', () => {
+        it('should respect custom max chunk limit', () => {
             const id = crypto.randomUUID();
             const ciphertext = randomBytes(900);
-            const maxChunkSize = 100; // Exactly 9 chunks (at the limit)
+            const maxChunkSize = 100; // Exactly 9 chunks (at the provided limit)
 
-            const chunks = splitEncryptedPayloads(id, ciphertext, maxChunkSize);
+            const chunks = splitEncryptedPayloads(id, ciphertext, maxChunkSize, 9);
 
-            expect(chunks.length).toBe(MAX_DATA_PAGES);
+            expect(chunks.length).toBe(9);
         });
     });
 

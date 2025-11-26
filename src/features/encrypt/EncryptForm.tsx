@@ -9,11 +9,13 @@ import FileDropzone from './components/FileDropzone';
 import ShareConfiguration, { isShareConfigurationValid } from './components/ShareConfiguration';
 import PdfConfiguration from './components/PdfConfiguration';
 import ResultView from './components/ResultView';
+import CapacityBadge, { CapacityStatus } from './components/CapacityBadge';
 import StatusBanner, { StatusMessage } from '@/components/StatusBanner';
 import BrowserExtensionWarning from './components/BrowserExtensionWarning';
 import ExpandingInfoSection from '@/components/ExpandingInfoSection';
 import { LightBulbIcon } from '@heroicons/react/24/outline';
 import ShamirExplanation from '@/components/ShamirExplanation';
+import { calculateDataArchiveSize, canEmbedInPdf } from '@/lib/pdf/dataCapacity';
 
 export default function EncryptForm() {
     const [text, setText] = useState('');
@@ -21,9 +23,12 @@ export default function EncryptForm() {
     const [shares, setShares] = useState(5);
     const [threshold, setThreshold] = useState(3);
     const [title, setTitle] = useState('Secret Key Share');
+    const [maxPages, setMaxPages] = useState(10);
     const [isProcessing, setIsProcessing] = useState(false);
     const [statusMessage, setStatusMessage] = useState<StatusMessage | null>(null);
     const [result, setResult] = useState<{ pdfs: { name: string; url: string }[]; dataUrl?: string; dataName?: string; qrImages: { name: string; data: Uint8Array | string }[] } | null>(null);
+    const [capacityStatus, setCapacityStatus] = useState<CapacityStatus>('empty');
+    const [debouncedText, setDebouncedText] = useState('');
 
     // Auto-hide status message after a short delay unless explicitly disabled
     useEffect(() => {
@@ -35,6 +40,52 @@ export default function EncryptForm() {
         }, 5000);
         return () => window.clearTimeout(timer);
     }, [statusMessage]);
+
+    // Debounce text input so heavy size calculation isn't triggered on every keystroke
+    useEffect(() => {
+        const handler = window.setTimeout(() => {
+            setDebouncedText(text);
+        }, 400);
+
+        return () => window.clearTimeout(handler);
+    }, [text]);
+
+    // Reflect pending state whenever inputs change
+    useEffect(() => {
+        if (!text && files.length === 0) {
+            setCapacityStatus('empty');
+            return;
+        }
+
+        setCapacityStatus('waiting');
+    }, [text, files.length]);
+
+    // Calculate if data can be embedded in PDF
+    useEffect(() => {
+        let cancelled = false;
+
+        const checkDataSize = async () => {
+            if (!debouncedText && files.length === 0) {
+                if (!cancelled) {
+                    setCapacityStatus('empty');
+                }
+                return;
+            }
+            // Treat NaN as 1 (minimum value)
+            const effectiveMaxPages = isNaN(maxPages) ? 1 : maxPages;
+            const dataSize = await calculateDataArchiveSize(debouncedText, files);
+            const fits = canEmbedInPdf(dataSize, effectiveMaxPages);
+            if (!cancelled) {
+                setCapacityStatus(fits ? 'fits' : 'tooLarge');
+            }
+        };
+
+        checkDataSize();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [debouncedText, files, maxPages]);
 
     const handleEncrypt = async () => {
         setIsProcessing(true);
@@ -73,11 +124,13 @@ export default function EncryptForm() {
             });
 
             // 2. Generate Artifacts (PDFs + data file)
+            const effectiveMaxPages = isNaN(maxPages) ? 1 : maxPages;
             const jobResult = await generateShareArtifacts(secretData, {
                 shares,
                 threshold,
                 title,
                 dataFileName,
+                maxPages: effectiveMaxPages,
             });
 
             const pdfs = jobResult.pdfs.map((pdf) => {
@@ -131,7 +184,10 @@ export default function EncryptForm() {
 
 
                     <div className="bg-slate-900/50 backdrop-blur-xl rounded-2xl border border-slate-800 p-6 shadow-xl">
-                        <h2 className="text-xl font-semibold mb-6 text-indigo-300">1. Choose Secret</h2>
+                        <div className="flex items-center justify-between mb-6">
+                            <h2 className="text-xl font-semibold text-indigo-300">1. Choose Secret</h2>
+                            <CapacityBadge status={capacityStatus} />
+                        </div>
 
                         <div className="space-y-4">
                             <SecretInput text={text} onTextChange={setText} />
@@ -171,7 +227,7 @@ export default function EncryptForm() {
                         onThresholdChange={setThreshold}
                     />
 
-                    <PdfConfiguration title={title} onTitleChange={setTitle} />
+                    <PdfConfiguration title={title} onTitleChange={setTitle} maxPages={maxPages} onMaxPagesChange={setMaxPages} />
 
                     <StatusBanner
                         statusMessage={statusMessage}
