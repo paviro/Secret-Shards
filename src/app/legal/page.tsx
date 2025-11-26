@@ -66,6 +66,30 @@ export default function LegalDisclosure() {
                     </div>
                 </div>
 
+                {/* Important Disclaimers Card */}
+                <div className="mb-8">
+                    <div className="flex items-center gap-3 mb-6">
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-500/20 to-red-500/20 flex items-center justify-center border border-amber-500/30">
+                            <BeakerIcon className="w-6 h-6 text-amber-400" stroke="currentColor" strokeWidth={1.5} />
+                        </div>
+                        <h2 className="text-2xl font-semibold text-slate-200">Important</h2>
+                    </div>
+
+                    <div className="bg-gradient-to-br from-amber-900/30 to-red-900/30 rounded-2xl p-8 border border-amber-500/30 backdrop-blur-sm shadow-xl space-y-6">
+
+                        {/* No Warranty */}
+                        <div>
+                            <h3 className="text-lg font-semibold text-amber-400 mb-3">No Warranty</h3>
+                            <p className="text-slate-300 leading-relaxed">
+                                This website was built by a hobbyist for personal use and is not a professional service created by cryptographic experts.
+                                It is provided "as is" without any warranties, express or implied.
+                                Use it at your own risk and ensure it meets your security requirements.
+                            </p>
+                        </div>
+
+                    </div>
+                </div>
+
                 {/* Disclaimer Card */}
                 <div className="mb-8">
                     <div className="flex items-center gap-3 mb-6">
@@ -106,28 +130,6 @@ export default function LegalDisclosure() {
                                 Source: Übersetzungsdienst translate-24h.de
                             </p>
                         </div>
-                    </div>
-                </div>
-
-                {/* Important Disclaimers Card */}
-                <div className="mb-8">
-                    <div className="flex items-center gap-3 mb-6">
-                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-500/20 to-red-500/20 flex items-center justify-center border border-amber-500/30">
-                            <BeakerIcon className="w-6 h-6 text-amber-400" stroke="currentColor" strokeWidth={1.5} />
-                        </div>
-                        <h2 className="text-2xl font-semibold text-slate-200">Important</h2>
-                    </div>
-
-                    <div className="bg-gradient-to-br from-amber-900/30 to-red-900/30 rounded-2xl p-8 border border-amber-500/30 backdrop-blur-sm shadow-xl space-y-6">
-
-                        {/* No Warranty */}
-                        <div>
-                            <h3 className="text-lg font-semibold text-amber-400 mb-3">No Warranty</h3>
-                            <p className="text-slate-300 leading-relaxed">
-                                This software is provided "as-is" without any warranties, expressed or implied. The hosted version at secret-shards.de is provided for convenience only.
-                            </p>
-                        </div>
-
                     </div>
                 </div>
 

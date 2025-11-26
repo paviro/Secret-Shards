@@ -17,7 +17,7 @@ export default function SecretInput({ text, onTextChange, disabled = false }: Se
                 onChange={(e: ChangeEvent<HTMLTextAreaElement>) => onTextChange(e.target.value)}
                 disabled={disabled}
                 className="w-full bg-slate-950 border border-slate-800 rounded-xl p-4 text-slate-200 placeholder-slate-600 focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 outline-none transition-all h-32 resize-none disabled:opacity-50 disabled:cursor-not-allowed"
-                placeholder="Enter your secret message here..."
+                placeholder="Enter your secret message here (e.g., a password, recovery seed, or personal note)..."
             />
         </div>
     );

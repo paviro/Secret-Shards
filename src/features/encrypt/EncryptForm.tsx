@@ -11,6 +11,9 @@ import PdfConfiguration from './components/PdfConfiguration';
 import ResultView from './components/ResultView';
 import StatusBanner, { StatusMessage } from '@/components/StatusBanner';
 import BrowserExtensionWarning from './components/BrowserExtensionWarning';
+import ExpandingInfoSection from '@/components/ExpandingInfoSection';
+import { LightBulbIcon } from '@heroicons/react/24/outline';
+import ShamirExplanation from '@/components/ShamirExplanation';
 
 export default function EncryptForm() {
     const [text, setText] = useState('');
@@ -125,6 +128,8 @@ export default function EncryptForm() {
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
             {!result ? (
                 <>
+
+
                     <div className="bg-slate-900/50 backdrop-blur-xl rounded-2xl border border-slate-800 p-6 shadow-xl">
                         <h2 className="text-xl font-semibold mb-6 text-indigo-300">1. Choose Secret</h2>
 
@@ -143,6 +148,19 @@ export default function EncryptForm() {
                             <FileDropzone files={files} onFilesChange={setFiles} />
                         </div>
                     </div>
+
+
+
+                    <ExpandingInfoSection
+                        title="What is Shamir's Secret Sharing?"
+                        description="Learn how secrets are secured by splitting them into pieces."
+                        icon={<LightBulbIcon className="w-6 h-6" />}
+                        storageKey="hide-sharding-explainer"
+                    >
+                        {(collapse) => (
+                            <ShamirExplanation onClose={collapse} />
+                        )}
+                    </ExpandingInfoSection>
 
                     <BrowserExtensionWarning />
 

@@ -54,7 +54,7 @@ export default function ShareConfiguration({ shares, threshold, onSharesChange, 
                 <div>
                     <label htmlFor="total-shares" className="block text-sm font-medium text-slate-400 mb-2">
                         Total Shares (N)
-                        <span className="ml-2 text-xs text-slate-500">How many shares to generate</span>
+                        <span className="ml-2 text-xs text-slate-500">How many pieces to create</span>
                     </label>
                     <input
                         id="total-shares"
@@ -79,8 +79,8 @@ export default function ShareConfiguration({ shares, threshold, onSharesChange, 
                 </div>
                 <div>
                     <label htmlFor="threshold" className="block text-sm font-medium text-slate-400 mb-2">
-                        Threshold (K)
-                        <span className="ml-2 text-xs text-slate-500">Minimum needed to decrypt</span>
+                        Required Shares (K)
+                        <span className="ml-2 text-xs text-slate-500">Minimum needed to unlock</span>
                     </label>
                     <input
                         id="threshold"
@@ -108,9 +108,12 @@ export default function ShareConfiguration({ shares, threshold, onSharesChange, 
                 </div>
             </div>
             {isValid && (
-                <p className="mt-4 text-sm text-slate-500">
-                    You will generate <strong>{shares}</strong> shares. Any <strong>{threshold}</strong> of them will be needed to recover the secret.
-                </p>
+                <div className="mt-6 p-4 bg-slate-950/50 rounded-xl border border-slate-800/50">
+                    <p className="text-sm text-slate-400 leading-relaxed">
+                        <span className="text-cyan-400 font-medium">Summary:</span> You are splitting your secret into <strong>{shares} pieces</strong>.
+                        To recover the secret later, you (or your trusted contacts) will need to combine <strong>any {threshold}</strong> of these pieces.
+                    </p>
+                </div>
             )}
         </div>
     );

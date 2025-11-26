@@ -4,6 +4,7 @@ import { isLegalPagesEnabled } from '@/lib/config';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { CheckIcon, ShieldCheckIcon, DocumentTextIcon, EnvelopeIcon, PhoneIcon, ArrowLeftIcon, QrCodeIcon, LockClosedIcon, ServerStackIcon, InformationCircleIcon } from '@heroicons/react/24/outline';
+import ShamirExplanation from '@/components/ShamirExplanation';
 
 export default function PrivacyPolicy() {
     if (!isLegalPagesEnabled()) {
@@ -85,17 +86,12 @@ export default function PrivacyPolicy() {
                     <div className="bg-gradient-to-br from-slate-800/40 to-slate-900/40 rounded-2xl p-8 border border-slate-700/40 backdrop-blur-sm shadow-xl space-y-6">
                         <div>
                             <h3 className="text-xl font-semibold text-slate-100 mb-2">Plain-language explanation</h3>
-                            <p className="text-slate-300 leading-relaxed text-sm">
-                                To encrypt your messages and files, your browser generates a strong random secret key. That key and your data is then processed and encrypted locally on your device.
-                            </p>
-                            <p className="text-slate-300 pt-3 leading-relaxed text-sm">
-                                After the encryption, the secret key is split into several "puzzle pieces." Each person or location you choose gets one piece. Only when enough pieces are put back together can the secret key be rebuilt and the data unlocked. Without those pieces, all anyone sees is meaningless gibberish.
-                            </p>
+                            <ShamirExplanation className="text-sm" />
                         </div>
                         <div className="bg-slate-950/40 border border-slate-700/40 rounded-xl p-6 text-xs text-slate-200 leading-relaxed space-y-3">
                             <p className="font-semibold text-cyan-300 uppercase tracking-wide text-[0.7rem]">Technical specifics</p>
                             <ul className="list-disc list-inside space-y-2 text-slate-300">
-                                <li>Key generation and encryption of the data is handled via the Web Crypto API (AES-GCM, 256-bit)</li>
+                                <li>Key generation and encryption of the data is handled via the Web Crypto API</li>
                                 <li>Key splitting is performed using Shamir’s Secret Sharing (GF(2^8)) via the <a href="https://www.npmjs.com/package/shamir-secret-sharing" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:text-cyan-300 transition-colors underline">shamir-secret-sharing</a> library.</li>
                                 <li>The Shamir implementation in the library is independently audited, with reports available from <a href="https://cure53.de/audit-report_privy-sss-library.pdf" target="_blank" className="underline">Cure53</a> and <a href="https://github.com/Zellic/publications/blob/master/Privy_Shamir_Secret_Sharing_-_Zellic_Audit_Report.pdf" target="_blank" className="underline">Zellic</a>.</li>
                             </ul>
