@@ -9,7 +9,7 @@ interface ScannerReticleProps {
     className?: string;
 }
 
-export function ScannerReticle({ className = 'w-88 h-80' }: ScannerReticleProps) {
+export function ScannerReticle({ className = 'w-[calc(100vw-8rem)] max-w-[22rem] aspect-square' }: ScannerReticleProps) {
     return (
         <div className={`${className} relative opacity-75 shrink-0 pointer-events-none drop-shadow-md`}>
             <div className="absolute top-0 left-0 w-12 h-12 border-t-4 border-l-4 border-white rounded-tl-xl"></div>
@@ -32,7 +32,7 @@ export function ScannerProgress({
     const dataProgress = totalData ? (collectedData / totalData) * 100 : 0;
 
     return (
-        <div className={`w-full flex gap-4 ${className}`}>
+        <div className={`flex gap-4 ${className}`}>
             {/* Shares Progress */}
             <div className="flex-1 bg-black/30 backdrop-blur-md rounded-xl p-3 border border-white/30">
                 <div className="flex justify-between items-end mb-2">
@@ -86,9 +86,9 @@ export function ScannerProgress({
 
 export default function ScannerHud(props: ScannerHudProps) {
     return (
-        <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center z-20 gap-25">
+        <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center z-20 gap-8 [@media(min-width:480px)]:gap-20">
             <ScannerReticle />
-            <ScannerProgress {...props} className="max-w-[22rem]" />
+            <ScannerProgress {...props} className="w-[calc(100vw-8rem)] max-w-[22rem]" />
         </div>
     );
 }
